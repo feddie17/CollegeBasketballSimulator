@@ -69,6 +69,7 @@ namespace CollegeBasketballSimulator
                     Console.WriteLine("'m' to simulate multi matchup between 2 teams (2025)");
                     Console.WriteLine("'s' to simulate the Big 12 Season so far (2025)");
                     Console.WriteLine("'stats' to calculate prediction statistics");
+                    Console.WriteLine("'q' to Quit");
                     input1 = Console.ReadLine();
                     if(input1 == "g")
                     {
@@ -100,6 +101,10 @@ namespace CollegeBasketballSimulator
                     {
                         loop1 = false;
                         mode = 5;
+                    }
+                    else if (input1 == "q")
+                    {
+                        Environment.Exit(0);
                     }
                     else
                     {
