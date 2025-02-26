@@ -53,8 +53,8 @@ namespace CollegeBasketballSimulator
             Console.WriteLine("");
             while (true)
             {
-                int adjuster2pt = 0;
-                int adjuster3pt = 0;
+                int adjuster2pt = -10;
+                int adjuster3pt = -10;
                 int adjusterTurnover = 0;
                 int adjusterFoul = 0;
                 bool loop1 = true;
@@ -749,7 +749,7 @@ namespace CollegeBasketballSimulator
                         bool shortPosession = false;
                         if (team1HasBall == true)
                         {
-                            PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, secondHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, overtimeTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
                             team1Score += res.PointsScored;
                             overtimeTimeLeft -= res.SecondsUsed;
                             if (res.OffenseKeepsPosession == false)
@@ -773,7 +773,7 @@ namespace CollegeBasketballSimulator
                         }
                         else
                         {
-                            PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, secondHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                            PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, overtimeTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
                             team2Score += res.PointsScored;
                             overtimeTimeLeft -= res.SecondsUsed;
                             if (res.OffenseKeepsPosession == false)
@@ -866,6 +866,10 @@ namespace CollegeBasketballSimulator
             int tempo = (int)Math.Round(team1.ADJ_T);
             //convert number to 0-15
             tempo = tempo - 60;
+            if(tempo < 0)
+            {
+                tempo = 0;
+            }
 
             //shortest posession should be like 5 seconds, so random should start at 20
             int randForTempo = r.Next(1, tempo + 1);
@@ -2234,7 +2238,7 @@ namespace CollegeBasketballSimulator
 
             for (int i = 1; i <= times; i++)
             {
-                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -5, -5, 0, 0, GameSpeed.Instant, "2025", false);
+                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -10, -10, 0, 0, GameSpeed.Instant, "2025", false);
                 if (res.Winner == team1)
                 {
                     Console.WriteLine(i.ToString() + ". (W) " + team1 + " " + res.WinnerScore.ToString() + "-" + res.LoserScore.ToString() + " " + team2);
@@ -2301,70 +2305,70 @@ namespace CollegeBasketballSimulator
 
                         //free throws
                         curr.FTP = 70; //default it
-                        if(curr.Name == "Texas Tech")
-                        {
-                            curr.FTP = (decimal)78.2;
-                        }
-                        else if(curr.Name == "UCF")
-                        {
-                            curr.FTP = (decimal)76.8;
-                        }
-                        else if (curr.Name == "Colorado")
-                        {
-                            curr.FTP = (decimal)76.3;
-                        }
-                        else if (curr.Name == "West Virginia")
-                        {
-                            curr.FTP = (decimal)75.7;
-                        }
-                        else if (curr.Name == "Arizona")
-                        {
-                            curr.FTP = (decimal)75.0;
-                        }
-                        else if (curr.Name == "Iowa St.")
-                        {
-                            curr.FTP = (decimal)75.1;
-                        }
-                        else if (curr.Name == "Houston")
-                        {
-                            curr.FTP = (decimal)73.6;
-                        }
-                        else if (curr.Name == "Oklahoma St.")
-                        {
-                            curr.FTP = (decimal)72.6;
-                        }
-                        else if (curr.Name == "Kansas")
-                        {
-                            curr.FTP = (decimal)73.7;
-                        }
-                        else if (curr.Name == "Arizona St.")
-                        {
-                            curr.FTP = (decimal)70.7;
-                        }
-                        else if (curr.Name == "Baylor")
-                        {
-                            curr.FTP = (decimal)71.6;
-                        }
-                        else if (curr.Name == "BYU")
-                        {
-                            curr.FTP = (decimal)68.1;
-                        }
-                        else if (curr.Name == "Kansas St.")
-                        {
-                            curr.FTP = (decimal)67.9;
-                        }
-                        else if (curr.Name == "TCU")
-                        {
-                            curr.FTP = (decimal)63.0;
-                        }
-                        else if (curr.Name == "Cincinnati")
-                        {
-                            curr.FTP = (decimal)65.2;
-                        }
-                        else if (curr.Name == "Utah")
-                        {
-                            curr.FTP = (decimal)62.4;
-                        }
+                        //if(curr.Name == "Texas Tech")
+                        //{
+                        //    curr.FTP = (decimal)78.2;
+                        //}
+                        //else if(curr.Name == "UCF")
+                        //{
+                        //    curr.FTP = (decimal)76.8;
+                        //}
+                        //else if (curr.Name == "Colorado")
+                        //{
+                        //    curr.FTP = (decimal)76.3;
+                        //}
+                        //else if (curr.Name == "West Virginia")
+                        //{
+                        //    curr.FTP = (decimal)75.7;
+                        //}
+                        //else if (curr.Name == "Arizona")
+                        //{
+                        //    curr.FTP = (decimal)75.0;
+                        //}
+                        //else if (curr.Name == "Iowa St.")
+                        //{
+                        //    curr.FTP = (decimal)75.1;
+                        //}
+                        //else if (curr.Name == "Houston")
+                        //{
+                        //    curr.FTP = (decimal)73.6;
+                        //}
+                        //else if (curr.Name == "Oklahoma St.")
+                        //{
+                        //    curr.FTP = (decimal)72.6;
+                        //}
+                        //else if (curr.Name == "Kansas")
+                        //{
+                        //    curr.FTP = (decimal)73.7;
+                        //}
+                        //else if (curr.Name == "Arizona St.")
+                        //{
+                        //    curr.FTP = (decimal)70.7;
+                        //}
+                        //else if (curr.Name == "Baylor")
+                        //{
+                        //    curr.FTP = (decimal)71.6;
+                        //}
+                        //else if (curr.Name == "BYU")
+                        //{
+                        //    curr.FTP = (decimal)68.1;
+                        //}
+                        //else if (curr.Name == "Kansas St.")
+                        //{
+                        //    curr.FTP = (decimal)67.9;
+                        //}
+                        //else if (curr.Name == "TCU")
+                        //{
+                        //    curr.FTP = (decimal)63.0;
+                        //}
+                        //else if (curr.Name == "Cincinnati")
+                        //{
+                        //    curr.FTP = (decimal)65.2;
+                        //}
+                        //else if (curr.Name == "Utah")
+                        //{
+                        //    curr.FTP = (decimal)62.4;
+                        //}
                         res.Add(curr);
 
                     }
