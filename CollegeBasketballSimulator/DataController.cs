@@ -496,6 +496,9 @@ namespace CollegeBasketballSimulator
                 Console.WriteLine("Invalid team name.");
                 return new MatchupResult();
             }
+            
+            UpdateFreeThrow(team1Model);
+            UpdateFreeThrow(team2Model);
 
             //print pregame stats
             if(waitTime > 0)
@@ -2238,7 +2241,7 @@ namespace CollegeBasketballSimulator
 
             for (int i = 1; i <= times; i++)
             {
-                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -10, -10, 0, 0, GameSpeed.Instant, "2025", false);
+                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -5, -5, 0, 0, GameSpeed.Instant, "2025", false);
                 if (res.Winner == team1)
                 {
                     Console.WriteLine(i.ToString() + ". (W) " + team1 + " " + res.WinnerScore.ToString() + "-" + res.LoserScore.ToString() + " " + team2);
@@ -2411,6 +2414,27 @@ namespace CollegeBasketballSimulator
             }
             res.Overtimes = 0;
             return res;
+        }
+
+        public static void UpdateFreeThrow(CollegeModel team)
+        {
+            string urlTeamName = team.Name.Replace(" ", "+");
+            if (urlTeamName.Contains("'"))
+            {
+                urlTeamName = urlTeamName.Replace("'", "%27");
+            }
+
+            if (urlTeamName.Contains("&"))
+            {
+                urlTeamName = urlTeamName.Replace("&", "%26");
+            }
+
+            HtmlWeb w = new HtmlWeb();
+            HtmlDocument teamDoc = w.Load("https://barttorvik.com/team.php?team=" + urlTeamName + "&year=2025");
+            HtmlNode ftpDiv = teamDoc.GetElementbyId("ft_per");
+            string ftpString = ftpDiv.InnerText;
+            decimal ftp = Convert.ToDecimal(ftpString);
+            team.FTP = ftp;
         }
 
     }
