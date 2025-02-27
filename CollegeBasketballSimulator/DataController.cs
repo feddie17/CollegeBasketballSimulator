@@ -496,6 +496,9 @@ namespace CollegeBasketballSimulator
                 Console.WriteLine("Invalid team name.");
                 return new MatchupResult();
             }
+            
+            UpdateFreeThrow(team1Model);
+            UpdateFreeThrow(team2Model);
 
             //print pregame stats
             if(waitTime > 0)
@@ -2299,8 +2302,10 @@ namespace CollegeBasketballSimulator
                         curr.ADJ_T = Convert.ToDecimal(cells[22].InnerText);
                         curr.WAB = Convert.ToDecimal(cells[23].InnerText);
 
+                        
+
                         //free throws
-                        curr.FTP = 70; //default it
+                        curr.FTP = 70;
                         if(curr.Name == "Texas Tech")
                         {
                             curr.FTP = (decimal)78.2;
@@ -2407,6 +2412,27 @@ namespace CollegeBasketballSimulator
             }
             res.Overtimes = 0;
             return res;
+        }
+
+        public static void UpdateFreeThrow(CollegeModel team)
+        {
+            string urlTeamName = team.Name.Replace(" ", "+");
+            if (urlTeamName.Contains("'"))
+            {
+                urlTeamName = urlTeamName.Replace("'", "%27");
+            }
+
+            if (urlTeamName.Contains("&"))
+            {
+                urlTeamName = urlTeamName.Replace("&", "%26");
+            }
+
+            HtmlWeb w = new HtmlWeb();
+            HtmlDocument teamDoc = w.Load("https://barttorvik.com/team.php?team=" + urlTeamName + "&year=2025");
+            HtmlNode ftpDiv = teamDoc.GetElementbyId("ft_per");
+            string ftpString = ftpDiv.InnerText;
+            decimal ftp = Convert.ToDecimal(ftpString);
+            team.FTP = ftp;
         }
 
     }
