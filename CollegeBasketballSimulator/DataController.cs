@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,10 +26,14 @@ namespace CollegeBasketballSimulator
         public static int adjusterTurnover { get; set; }
         public static int adjusterFoul { get; set; }
         public static int adjusterHomeTeam { get; set; }
+        public static List<CollegeModel> GlobalCollegeData { get; set; }
 
 
         public static void RunProgram()
         {
+            Console.WriteLine("Loading Program Data...");
+            //initialize the global college data
+            GlobalCollegeData = ScrapeLive2025Data().Result;
             Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
             Console.WriteLine("-College basketball simulator for 2023-2024 season.");
             Console.WriteLine("-Work in progress, some features are not yet implemented: ");
@@ -51,6 +56,9 @@ namespace CollegeBasketballSimulator
             Console.WriteLine("Adjuster added to boost home team statistics. ");
             Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
             Console.WriteLine("");
+
+            
+
             while (true)
             {
                 int adjuster2pt = -10;
@@ -228,7 +236,7 @@ namespace CollegeBasketballSimulator
                             Console.WriteLine("Invalid input, please try again. ");
                         }
                     }
-                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2025", false);
+                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2025", true);
                 }
                 else if(mode == 3)
                 {
@@ -482,7 +490,7 @@ namespace CollegeBasketballSimulator
             List<CollegeModel> data = new List<CollegeModel>();
             if(year == "2025")
             {
-                data = ScrapeLive2025Data().Result;
+                data = GlobalCollegeData;
             }
             else
             {
@@ -2307,71 +2315,8 @@ namespace CollegeBasketballSimulator
                         curr.WAB = Convert.ToDecimal(cells[23].InnerText);
 
                         //free throws
-                        curr.FTP = 70; //default it
-                        //if(curr.Name == "Texas Tech")
-                        //{
-                        //    curr.FTP = (decimal)78.2;
-                        //}
-                        //else if(curr.Name == "UCF")
-                        //{
-                        //    curr.FTP = (decimal)76.8;
-                        //}
-                        //else if (curr.Name == "Colorado")
-                        //{
-                        //    curr.FTP = (decimal)76.3;
-                        //}
-                        //else if (curr.Name == "West Virginia")
-                        //{
-                        //    curr.FTP = (decimal)75.7;
-                        //}
-                        //else if (curr.Name == "Arizona")
-                        //{
-                        //    curr.FTP = (decimal)75.0;
-                        //}
-                        //else if (curr.Name == "Iowa St.")
-                        //{
-                        //    curr.FTP = (decimal)75.1;
-                        //}
-                        //else if (curr.Name == "Houston")
-                        //{
-                        //    curr.FTP = (decimal)73.6;
-                        //}
-                        //else if (curr.Name == "Oklahoma St.")
-                        //{
-                        //    curr.FTP = (decimal)72.6;
-                        //}
-                        //else if (curr.Name == "Kansas")
-                        //{
-                        //    curr.FTP = (decimal)73.7;
-                        //}
-                        //else if (curr.Name == "Arizona St.")
-                        //{
-                        //    curr.FTP = (decimal)70.7;
-                        //}
-                        //else if (curr.Name == "Baylor")
-                        //{
-                        //    curr.FTP = (decimal)71.6;
-                        //}
-                        //else if (curr.Name == "BYU")
-                        //{
-                        //    curr.FTP = (decimal)68.1;
-                        //}
-                        //else if (curr.Name == "Kansas St.")
-                        //{
-                        //    curr.FTP = (decimal)67.9;
-                        //}
-                        //else if (curr.Name == "TCU")
-                        //{
-                        //    curr.FTP = (decimal)63.0;
-                        //}
-                        //else if (curr.Name == "Cincinnati")
-                        //{
-                        //    curr.FTP = (decimal)65.2;
-                        //}
-                        //else if (curr.Name == "Utah")
-                        //{
-                        //    curr.FTP = (decimal)62.4;
-                        //}
+                        //this will get set later
+                        curr.FTP = 0; 
                         res.Add(curr);
 
                     }
@@ -2418,6 +2363,13 @@ namespace CollegeBasketballSimulator
 
         public static void UpdateFreeThrow(CollegeModel team)
         {
+            //first check and see if team already has FTP
+            if(team.FTP != 0)
+            {
+                //FTP is already set, we outta here
+                return;
+            }
+
             string urlTeamName = team.Name.Replace(" ", "+");
             if (urlTeamName.Contains("'"))
             {
