@@ -19,6 +19,7 @@ namespace CollegeBasketballSimulator
         Medium = 2,
         Slow = 3
     }
+
     public class DataController
     {
         public static int adjuster2PT { get; set; }
@@ -27,6 +28,13 @@ namespace CollegeBasketballSimulator
         public static int adjusterFoul { get; set; }
         public static int adjusterHomeTeam { get; set; }
         public static List<CollegeModel> GlobalCollegeData { get; set; }
+        
+        public static int team1Score = 0;
+        public static int team2Score = 0;
+        public static int team1Fouls = 0;
+        public static int team2Fouls = 0;
+        public static int timeLeft = 2400;
+        public static bool team1HasBall = true;
 
 
         public static void RunProgram()
@@ -479,14 +487,13 @@ namespace CollegeBasketballSimulator
             {
                 waitTime = 2000;
             }
-
-            int team1Score = 0;
-            int team2Score = 0;
-            int team1Fouls = 0;
-            int team2Fouls = 0;
-            int firstHalfTimeLeft = 1200;
-            int secondHalfTimeLeft = 1200;
-            bool team1HasBall = true;
+        
+            team1Score = 0;
+            team2Score = 0;
+            team1Fouls = 0;
+            team2Fouls = 0;
+            timeLeft = 2400;
+            team1HasBall = true;
             List<CollegeModel> data = new List<CollegeModel>();
             if(year == "2025")
             {
@@ -578,56 +585,18 @@ namespace CollegeBasketballSimulator
 
 
             //run first half
-            while (firstHalfTimeLeft > 0)
+            while (timeLeft > 1200)
             {
                 bool shortPosession = false;
                 if (team1HasBall == true)
                 {
-                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, firstHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
-                    team1Score += res.PointsScored;
-                    firstHalfTimeLeft -= res.SecondsUsed;
-                    if (res.OffenseKeepsPosession == false)
-                    {
-                        team1HasBall = !team1HasBall;
-                        shortPosession = false;
-                    }
-                    else
-                    {
-                        shortPosession = true;
-                    }
-
-                    if (res.OffensiveFoul == true)
-                    {
-                        team1Fouls++;
-                    }
-                    if (res.DefensiveFoul == true)
-                    {
-                        team2Fouls++;
-                    }
+                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                    UdpateScore(res, shortPosession);
                 }
                 else
                 {
-                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, firstHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
-                    team2Score += res.PointsScored;
-                    firstHalfTimeLeft -= res.SecondsUsed;
-                    if (res.OffenseKeepsPosession == false)
-                    {
-                        team1HasBall = !team1HasBall;
-                        shortPosession = false;
-                    }
-                    else
-                    {
-                        shortPosession = true;
-                    }
-
-                    if (res.OffensiveFoul == true)
-                    {
-                        team2Fouls++;
-                    }
-                    if (res.DefensiveFoul == true)
-                    {
-                        team1Fouls++;
-                    }
+                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                    UdpateScore(res, shortPosession);
                 }
                 //wait a bit
                 if(waitTime > 0)
@@ -655,59 +624,24 @@ namespace CollegeBasketballSimulator
             //reset fouls
             team1Fouls = 0;
             team2Fouls = 0;
+            
+            //set time left to 20 min
+            timeLeft = 1200;
 
-            //run second half
-            while (secondHalfTimeLeft > 0)
+            //run second half minus final 2 minutes
+            while (timeLeft > 120)
             {
+                int lead = Math.Abs(team1Score - team2Score);
                 bool shortPosession = false;
                 if (team1HasBall == true)
                 {
-                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, secondHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
-                    team1Score += res.PointsScored;
-                    secondHalfTimeLeft -= res.SecondsUsed;
-                    if (res.OffenseKeepsPosession == false)
-                    {
-                        team1HasBall = !team1HasBall;
-                        shortPosession = false;
-                    }
-                    else
-                    {
-                        shortPosession = true;
-                    }
-
-                    if (res.OffensiveFoul == true)
-                    {
-                        team1Fouls++;
-                    }
-                    if (res.DefensiveFoul == true)
-                    {
-                        team2Fouls++;
-                    }
+                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                    UdpateScore(res, shortPosession);
                 }
                 else
                 {
-                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, secondHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
-                    team2Score += res.PointsScored;
-                    secondHalfTimeLeft -= res.SecondsUsed;
-                    if (res.OffenseKeepsPosession == false)
-                    {
-                        team1HasBall = !team1HasBall;
-                        shortPosession = false;
-                    }
-                    else
-                    {
-                        shortPosession = true;
-                    }
-
-                    if (res.OffensiveFoul == true)
-                    {
-                        team2Fouls++;
-                    }
-                    if (res.DefensiveFoul == true)
-                    {
-                        team1Fouls++;
-                    }
-
+                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                    UdpateScore(res, shortPosession);
                 }
                 //wait a bit
                 if(waitTime > 0)
@@ -717,6 +651,42 @@ namespace CollegeBasketballSimulator
                 
 
             }
+            
+            // run final 2 minutes
+            while (timeLeft > 0)
+            {
+                
+                bool shortPosession = false;
+                int lead = Math.Abs(team1Score - team2Score);
+                if (timeLeft < 30 && lead > 6)
+                {
+                    break;
+                }                 
+                if (team1HasBall)
+                {
+                     PosessionResult res = RunLateGamePossession(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                     if (res == null)
+                     {
+                         break;
+                     }
+                     UdpateScore(res, shortPosession );
+                 }
+                 else
+                 {
+                     PosessionResult res = RunLateGamePossession(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                     if (res == null)
+                     {
+                         break;
+                     }
+                     UdpateScore(res, shortPosession);
+                 }
+                //wait a bit
+                if(waitTime > 0)
+                {
+                    System.Threading.Thread.Sleep(waitTime);
+                }
+                
+            }
 
             int overtimeCounter = 0;
             //check for overtime
@@ -725,7 +695,7 @@ namespace CollegeBasketballSimulator
                 //overtime
                 while(team1Score == team2Score)
                 {
-                    int overtimeTimeLeft = 300;
+                    timeLeft = 300;
                     overtimeCounter++;
                     if(overtimeCounter == 1)
                     {
@@ -755,57 +725,50 @@ namespace CollegeBasketballSimulator
                             
                         }
                     }
-                    while (overtimeTimeLeft > 0)
+                    while (timeLeft > 120)
                     {
                         bool shortPosession = false;
                         if (team1HasBall == true)
                         {
-                            PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, overtimeTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
-                            team1Score += res.PointsScored;
-                            overtimeTimeLeft -= res.SecondsUsed;
-                            if (res.OffenseKeepsPosession == false)
-                            {
-                                team1HasBall = !team1HasBall;
-                                shortPosession = false;
-                            }
-                            else
-                            {
-                                shortPosession = true;
-                            }
-
-                            if (res.OffensiveFoul == true)
-                            {
-                                team1Fouls++;
-                            }
-                            if (res.DefensiveFoul == true)
-                            {
-                                team2Fouls++;
-                            }
+                            PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            UdpateScore(res, shortPosession);
                         }
                         else
                         {
-                            PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, overtimeTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
-                            team2Score += res.PointsScored;
-                            overtimeTimeLeft -= res.SecondsUsed;
-                            if (res.OffenseKeepsPosession == false)
+                            PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                            UdpateScore(res, shortPosession);
+                        }
+                        //wait a bit
+                        if(waitTime > 0)
+                        {
+                            System.Threading.Thread.Sleep(waitTime);
+                        }
+                    }
+                    while (timeLeft > 0)
+                    {
+                        bool shortPosession = false;
+                        int lead = Math.Abs(team1Score - team2Score);
+                        if (timeLeft < 30 && lead > 6)
+                        {
+                            break;
+                        }
+                        if (team1HasBall == true)
+                        {
+                            PosessionResult res = RunLateGamePossession(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            if (res == null)
                             {
-                                team1HasBall = !team1HasBall;
-                                shortPosession = false;
+                                break;
                             }
-                            else
+                            UdpateScore(res, shortPosession);
+                        }
+                        else
+                        {
+                            PosessionResult res = RunLateGamePossession(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            if (res == null)
                             {
-                                shortPosession = true;
+                                break;
                             }
-
-                            if (res.OffensiveFoul == true)
-                            {
-                                team2Fouls++;
-                            }
-                            if (res.DefensiveFoul == true)
-                            {
-                                team1Fouls++;
-                            }
-
+                            UdpateScore(res, shortPosession);
                         }
                         //wait a bit
                         if(waitTime > 0)
@@ -1094,7 +1057,7 @@ namespace CollegeBasketballSimulator
 
             //determine if the shot is a 2 or 3
             bool is3Pointer = false;
-            //im gonna say if a team is within 5 either way, 35% chance, winning by more than 5, 25% chance, losing by more than 5, 45% chance.
+            //im gonna say if a team is within 5 either way, 35% chance, winning by more than 5, 30% chance, losing by more than 5, 45% chance.
 
             int randForShotType = r.Next(1, 101);
             if (team1Score - team2Score > 5)
@@ -1466,6 +1429,822 @@ namespace CollegeBasketballSimulator
 
         }
 
+        public static void UdpateScore(PosessionResult res, bool shortPosession)
+        {
+            if (team1HasBall)
+            {
+                team1Score += res.PointsScored;
+                timeLeft -= res.SecondsUsed;
+                if (res.OffenseKeepsPosession == false)
+                {
+                    team1HasBall = !team1HasBall;
+                    shortPosession = false;
+                }
+                else
+                {
+                    shortPosession = true;
+                }
+
+                if (res.OffensiveFoul)
+                {
+                    team1Fouls++;
+                }
+                if (res.DefensiveFoul)
+                {
+                    team2Fouls++;
+                }
+            }
+            else
+            {
+                team2Score += res.PointsScored;
+                timeLeft -= res.SecondsUsed;
+                if (res.OffenseKeepsPosession == false)
+                {
+                    team1HasBall = !team1HasBall;
+                    shortPosession = false;
+                }
+                else
+                {
+                    shortPosession = true;
+                }
+
+                if (res.OffensiveFoul)
+                {
+                    team2Fouls++;
+                }
+
+                if (res.DefensiveFoul)
+                {
+                    team1Fouls++;
+                }
+            }
+        } 
+
+        public static PosessionResult RunLateGamePossession(CollegeModel team1, CollegeModel team2, int team1Score, int team2Score, int secsLeft, bool team1HasBall, bool shortPosession, int defensiveFouls, int offensiveFouls, int waitTime)
+        {
+            //first init the result model
+            PosessionResult res = new PosessionResult();
+            //init the random
+            Random r = new Random();
+            
+            int lead = team1Score - team2Score;
+            int timeTaken = 0;
+            int chanceOfDeadballFoul = (int)Math.Round((team1.FTR_O + team2.FTR_D) / 4);
+            chanceOfDeadballFoul += adjusterFoul;
+            int randForDeadballFoul = r.Next(1, 100);
+            bool is3Pointer = false;
+            int randForShotType = r.Next(1, 101);
+            int threeTendency = 35;
+            
+            if (secsLeft > 90)
+            {
+                if (lead > 12)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead > 9)
+                {
+                    // team 2 fouls
+                    timeTaken = r.Next(1, 5);
+                    chanceOfDeadballFoul = 100;
+                }
+                else if (lead > 3)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead == 0)
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(5, 30);
+                }
+                else if (lead < -6)
+                {
+                    // team 1 gets a quick shot
+                    timeTaken = r.Next(5, 15);
+                    threeTendency = 50;
+                }
+                else
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(5, 30);
+                }
+            }
+            else if (secsLeft > 60)
+            {
+                if (lead > 9)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead > 6)
+                {
+                    // team 2 fouls
+                    timeTaken = r.Next(1, 5);
+                    chanceOfDeadballFoul = 100;
+                }
+                else if (lead > 0)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead == 0)
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(10, 30);
+                }
+                else if (lead < -3)
+                {
+                    // team 1 gets a quick shot
+                    timeTaken = r.Next(5, 15);
+                    threeTendency = 50;
+                }
+                else
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(5, 30);
+                }
+            }
+            else if (secsLeft > 30)
+            {
+                if (lead > 9)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead > 3)
+                {
+                    // team 2 fouls
+                    timeTaken = r.Next(1, 5);
+                    chanceOfDeadballFoul = 100;
+                }
+                else if (lead > 0)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = r.Next(20, 30);
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead == 0)
+                {
+                    // team 1 runs normal possession
+                    r.Next(15, 30);
+                }
+                else if (lead < -3)
+                {
+                    // team 1 gets a quick shot
+                    timeTaken = r.Next(5, 15);
+                    threeTendency = 50;
+                }
+                else
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(5, 30);
+                }
+            }
+            else
+            {
+                if (lead > 6)
+                {
+                    // team 1 runs out clock
+                    if (shortPosession == false)
+                    {
+                        timeTaken = secsLeft;
+                    }
+                    else
+                    {
+                        timeTaken = r.Next(10, 20);
+                    }
+                }
+                else if (lead > 0)
+                {
+                    // team 2 fouls
+                    timeTaken = r.Next(1, 5);
+                    chanceOfDeadballFoul = 100;
+                }
+                else if (lead == 0)
+                {
+                   // team 1 runs normal possession 
+                   timeTaken = r.Next(1, secsLeft);
+                }
+                else if (lead < -3)
+                {
+                    // team 1 gets a quick shot
+                    timeTaken = r.Next(5, 15);
+                    threeTendency = 75;
+                }
+                else
+                {
+                    // team 1 runs normal possession
+                    timeTaken = r.Next(1, secsLeft);
+                }
+            }
+            
+            res.SecondsUsed = timeTaken;
+
+            if (secsLeft - timeTaken < 0)
+            {
+                return null;
+            }
+            
+            string timestamp = GetTimeStamp(secsLeft - timeTaken);
+            
+            //------------------------------------------------------------- determine if a turnover happened ---------------------------------------------------------------------------------
+            //chance of turnover = average of offense turnover % - defense turnover %, divide it by 3 to get a slightly lower turnover rate for testing
+            decimal chanceOfTurnover = ((team1.TOR_O + team2.TOR_D) / 3);
+            decimal randForTurnover = r.Next(1, 101);
+            if (chanceOfTurnover > randForTurnover)
+            {
+                //a turnover happened.
+                res.PointsScored = 0;
+                res.OffenseKeepsPosession = false;
+
+                //determine if the turnover was an offensive foul
+                //determine the odds by half of the defensive team's offensive freethrow attempt rate
+                int offFoulChance = (int)Math.Round(team2.FTR_O / 2);
+                int randForOffFoul = r.Next(1, 101);
+                if (offFoulChance >= randForOffFoul)
+                {
+                    res.OffensiveFoul = true;
+                    if(waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls + 1, defensiveFouls) + "---" + team1.Name + " committed an offensive foul.");
+                    }
+                    
+                }
+                else
+                {
+                    res.OffensiveFoul = false;
+                    if(waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team1.Name + " turned the ball over.");
+                    }
+                    
+                }
+                return res;
+            }
+            
+                        //------------------------------------------------------------- no turnover or offensive foul, now what? --------------------------------------------------------------------------------------------------
+
+            //------------------------------------------------------------- see if a dead ball defensive foul occurs --------------------------------------------------------------------------------------------------
+
+            //the chance of a deadball foul is going to be half of the average of the FT attempt rates.
+            if (chanceOfDeadballFoul >= randForDeadballFoul)
+            {
+                //a deadball defensive foul happened.
+                res.DefensiveFoul = true;
+                //check if freethrows will happen
+                if ((defensiveFouls + 1) > 6)
+                {
+                    //freethrows will happen
+                    res.OffenseKeepsPosession = false;
+                    //check if it's double bonus
+                    int freethrowChance = (int)Math.Round(team1.FTP);
+                    if ((defensiveFouls + 1) > 9)
+                    {
+                        //double bonus, two shots
+                        if(waitTime > 0)
+                        {
+                            Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " was fouled on the floor, two free throws coming.");
+                        }
+                        res.PointsScored = 0;
+                        int randFt1 = r.Next(1, 101);
+                        if (freethrowChance >= randFt1)
+                        {
+                            //made the first one
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the first free throw.");
+                                Thread.Sleep(waitTime);
+                            }
+                        }
+                        else
+                        {
+                            //missed the first one
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the first free throw.");
+                            }
+                        }
+                        int randFt2 = r.Next(1, 101);
+                        if (freethrowChance >= randFt2)
+                        {
+                            //made the second one
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the second free throw.");
+                            }
+                        }
+                        else
+                        {
+                            //missed the second one
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the second free throw.");
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team2.Name + " got the defensive rebound.");
+                            }
+                            
+                        }
+                        return res;
+                    }
+                    else
+                    {
+                        //one and one
+                        if(waitTime > 0)
+                        {
+                            Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " was fouled on the floor, one and one coming.");
+                        }
+                        
+                        res.PointsScored = 0;
+                        int randFt1 = r.Next(1, 101);
+                        if (freethrowChance >= randFt1)
+                        {
+                            //made the first one
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the first free throw.");
+                            }
+                            
+                            int randFt2 = r.Next(1, 101);
+                            if (freethrowChance <= randFt2)
+                            {
+                                //made the second one
+                                res.PointsScored++;
+                                if(waitTime > 0)
+                                {
+                                    Thread.Sleep(waitTime);
+                                    Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the second free throw.");
+                                }
+                                
+                                return res;
+                            }
+                            else
+                            {
+                                //missed the second one
+                                if(waitTime > 0)
+                                {
+                                    Thread.Sleep(waitTime);
+                                    Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the second free throw.");
+                                    Thread.Sleep(waitTime);
+                                    Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team2.Name + " got the defensive rebound.");
+                                }
+                                
+                                return res;
+                            }
+
+                        }
+                        else
+                        {
+                            //missed the first one
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the first free throw.");
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team2.Name + " got the defensive rebound.");
+                            }
+                            
+                            return res;
+                        }
+                    }
+                }
+
+                //if we got to here, no freethrows happened.
+                if(waitTime > 0)
+                {
+                    Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " was fouled on the floor.");
+                }
+
+                res.PointsScored = 0;
+                res.OffenseKeepsPosession = true;
+                return res;
+            }
+            
+            if (randForShotType > threeTendency)
+            {
+                is3Pointer = false;
+            }
+            else
+            {
+                is3Pointer = true;
+            }
+            
+                        //we now know what kind of shot is being taken, so split based on that
+            //first calculate overall adjustment.  This takes into account how good the team is
+            int adjuster = (int)Math.Round((team1.ADJOE + team2.ADJDE) / 2);
+            int adjusterDef = (int)Math.Round((team2.ADJOE + team1.ADJDE) / 2);
+            adjuster = adjuster - 100;
+            adjusterDef = adjusterDef - 100;
+
+            if (is3Pointer == true)
+            {
+                //3 pointer attempted
+                int percentChance = (int)Math.Round((team1.PT3_O + team2.PT3_D) / 2);
+                percentChance = percentChance + adjuster;
+                //give home team a boost
+                if(team1HasBall == false)
+                {
+                    percentChance += adjusterHomeTeam;
+                }
+                percentChance += adjuster3PT;
+                int randForShot = r.Next(1, 101);
+                if (randForShot <= percentChance)
+                {
+                    //he made that shit
+                    if(waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + 3, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team1.Name + " made 3 point basket.");
+                    }
+                    
+                    res.PointsScored = 3;
+                    res.OffenseKeepsPosession = false;
+                    return res;
+                }
+                else
+                {
+                    //he missed that shit
+                    //but was he fouled? 
+                    //percent of fouled on a 3 point shot will be 1/4 average of FT attempt rates
+                    int chanceOf3ptFoul = (int)Math.Round((team1.FTR_O + team2.FTR_D) / 8);
+                    chanceOf3ptFoul += adjusterFoul;
+                    int randFor3ptFoul = r.Next(1, 101);
+                    if (chanceOf3ptFoul >= randFor3ptFoul)
+                    {
+                        //fouled on a 3
+                        if(waitTime > 0)
+                        {
+                            Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " was fouled on a 3 point basket.");
+                        }
+                        
+                        res.PointsScored = 0;
+                        res.OffenseKeepsPosession = false;
+                        res.DefensiveFoul = true;
+                        int freethrowChance = (int)Math.Round(team1.FTP);
+                        int randFt1 = r.Next(1, 101);
+                        int randFt2 = r.Next(1, 101);
+                        int randFt3 = r.Next(1, 101);
+                        if (freethrowChance >= randFt1)
+                        {
+                            //made the first
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the first free throw.");
+                            }
+                           
+                        }
+                        else
+                        {
+                            //missed the first
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the first free throw.");
+                            }
+                           
+                        }
+                        if (freethrowChance >= randFt2)
+                        {
+                            //made the second
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the second free throw.");
+                            }
+                           
+                        }
+                        else
+                        {
+                            //missed the second
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the second free throw.");
+                            }
+                          
+                        }
+                        if (freethrowChance >= randFt3)
+                        {
+                            //made the third
+                            res.PointsScored++;
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " made the third free throw.");
+                            }
+                           
+                        }
+                        else
+                        {
+                            //missed the third
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team1.Name + " missed the third free throw.");
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" + team2.Name + " got the defensive rebound.");
+                            }
+                            
+                        }
+                        return res;
+                    }
+
+                    if(waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team1.Name + " missed 3 point basket.");
+                    }
+                    
+                    //give them a chance to def rebound
+                    int defReboundChance = (int)Math.Round(team2.DRB);
+                    defReboundChance += adjusterDef;
+                    int randForDefRebound = r.Next(1, 101);
+                    if (randForDefRebound <= defReboundChance)
+                    {
+                        //got the defensive rebound
+                        if(waitTime > 0)
+                        {
+                            Thread.Sleep(waitTime);
+                            Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team2.Name + " got the defensive rebound.");
+                        }
+                       
+                        res.PointsScored = 0;
+                        res.OffenseKeepsPosession = false;
+                        return res;
+                    }
+                    else
+                    {
+                        //didnt get the defensive rebound, chance to get the offensive rebound
+                        int offReboundChance = (int)Math.Round(team1.ORB);
+                        offReboundChance += adjuster;
+                        int randForOffRebound = r.Next(1, 101);
+                        if (randForOffRebound <= offReboundChance)
+                        {
+                            //got the offensive rebound
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team1.Name + " got the offensive rebound.");
+                            }
+                           
+                            res.PointsScored = 0;
+                            res.OffenseKeepsPosession = true;
+                            return res;
+                        }
+                        else
+                        {
+                            //didn't get the offensive rebound
+                            if(waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" + GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name, team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" + team2.Name + " got the defensive rebound.");
+                            }
+                           
+                            res.PointsScored = 0;
+                            res.OffenseKeepsPosession = false;
+                            return res;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //2 pointer attempted
+                int percentChance = (int)Math.Round((team1.PT2_O + team2.PT2_D) / 2);
+                percentChance = percentChance + adjuster;
+                percentChance += adjuster2PT;
+                //give home team a boost
+                if (team1HasBall == false)
+                {
+                    percentChance += adjusterHomeTeam;
+                }
+
+                int randForShot = r.Next(1, 101);
+                if (randForShot <= percentChance)
+                {
+                    //he made that shit
+                    if (waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" +
+                                          GetScoreboard(team1.Name, team1Score + 2, team2.Name, team2Score,
+                                              team1HasBall, offensiveFouls, defensiveFouls) + "---" + team1.Name +
+                                          " made 2 point basket.");
+                    }
+
+                    res.PointsScored = 2;
+                    res.OffenseKeepsPosession = false;
+                    return res;
+                }
+                else
+                {
+                    //he missed that shit
+                    //but was he fouled?
+                    //chance of FT attemp rate average divided by 2
+                    int chanceOf2ptFoul = (int)Math.Round((team1.FTR_O + team2.FTR_D) / 4);
+                    chanceOf2ptFoul += adjusterFoul;
+                    int randFor2ptFoul = r.Next(1, 101);
+                    if (chanceOf2ptFoul >= randFor2ptFoul)
+                    {
+                        //fouled on a 2
+                        if (waitTime > 0)
+                        {
+                            Console.WriteLine("---" + timestamp + "---" +
+                                              GetScoreboard(team1.Name, team1Score, team2.Name, team2Score,
+                                                  team1HasBall, offensiveFouls, defensiveFouls + 1) + "---" +
+                                              team1.Name + " was fouled on a 2 point basket.");
+                        }
+
+                        res.PointsScored = 0;
+                        res.OffenseKeepsPosession = false;
+                        res.DefensiveFoul = true;
+                        int freethrowChance = (int)Math.Round(team1.FTP);
+                        int randFt1 = r.Next(1, 101);
+                        int randFt2 = r.Next(1, 101);
+                        if (freethrowChance >= randFt1)
+                        {
+                            //made the first
+                            res.PointsScored++;
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) +
+                                                  "---" + team1.Name + " made the first free throw.");
+                            }
+
+                        }
+                        else
+                        {
+                            //missed the first
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) +
+                                                  "---" + team1.Name + " missed the first free throw.");
+                            }
+
+                        }
+
+                        if (freethrowChance >= randFt2)
+                        {
+                            //made the second
+                            res.PointsScored++;
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) +
+                                                  "---" + team1.Name + " made the second free throw.");
+                            }
+
+                        }
+                        else
+                        {
+                            //missed the second
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) +
+                                                  "---" + team1.Name + " missed the second free throw.");
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls + 1) +
+                                                  "---" + team2.Name + " got the defensive rebound.");
+                            }
+
+                        }
+
+                        return res;
+                    }
+
+                    if (waitTime > 0)
+                    {
+                        Console.WriteLine("---" + timestamp + "---" +
+                                          GetScoreboard(team1.Name, team1Score, team2.Name, team2Score, team1HasBall,
+                                              offensiveFouls, defensiveFouls) + "---" + team1.Name +
+                                          " missed 2 point basket.");
+                    }
+
+                    //give them a chance to def rebound
+                    int defReboundChance = (int)Math.Round(team2.DRB);
+                    defReboundChance += adjusterDef;
+                    int randForDefRebound = r.Next(1, 101);
+                    if (randForDefRebound <= defReboundChance)
+                    {
+                        //got the defensive rebound
+                        if (waitTime > 0)
+                        {
+                            Thread.Sleep(waitTime);
+                            Console.WriteLine("---" + timestamp + "---" +
+                                              GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                  team2Score, team1HasBall, offensiveFouls, defensiveFouls) + "---" +
+                                              team2.Name + " got the defensive rebound.");
+                        }
+
+                        res.PointsScored = 0;
+                        res.OffenseKeepsPosession = false;
+                        return res;
+                    }
+                    else
+                    {
+                        //didnt get the defensive rebound, chance to get the offensive rebound
+                        int offReboundChance = (int)Math.Round(team1.ORB);
+                        offReboundChance += adjuster;
+                        int randForOffRebound = r.Next(1, 101);
+                        if (randForOffRebound >= offReboundChance)
+                        {
+                            //got the offensive rebound
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls) +
+                                                  "---" + team1.Name + " got the offensive rebound.");
+                            }
+
+                            res.PointsScored = 0;
+                            res.OffenseKeepsPosession = true;
+                            return res;
+                        }
+                        else
+                        {
+                            //didn't get the offensive rebound
+                            if (waitTime > 0)
+                            {
+                                Thread.Sleep(waitTime);
+                                Console.WriteLine("---" + timestamp + "---" +
+                                                  GetScoreboard(team1.Name, team1Score + res.PointsScored, team2.Name,
+                                                      team2Score, team1HasBall, offensiveFouls, defensiveFouls) +
+                                                  "---" + team2.Name + " got the defensive rebound.");
+                            }
+
+                            res.PointsScored = 0;
+                            res.OffenseKeepsPosession = false;
+                            return res;
+                        }
+                    }
+                }
+            }
+        }
+        
         public static string GetTimeStamp(int secondsLeft)
         {
             if (secondsLeft <= 1)
