@@ -17,6 +17,8 @@ namespace CollegeBasketballSimulator
             public int GamesPlayed { get; set; }
             public int Wins { get; set; }
             public int Losses { get; set; }
+            public int ConfWins { get; set; }
+            public int ConfLosses { get; set; }
             public decimal ADJOE { get; set; } //higher is better
             public decimal ADJDE { get; set; } //lower is better
             public decimal BARTHAG { get; set; } //fraction, higher is better
@@ -35,6 +37,7 @@ namespace CollegeBasketballSimulator
             public decimal ADJ_T { get; set; } //an estimate of tempo (posessions per 40 minutes)
             public decimal WAB { get; set; } //wins above the bubble (can be negative)
             public decimal FTP { get; set; } //freethrow percentage
+            public decimal CustomRankAdjuster { get; set; }
 
 
             public CollegeModel()
@@ -98,6 +101,28 @@ namespace CollegeBasketballSimulator
             }
 
             
+        }
+
+        public class CollegeModel2026
+        {
+            
+            public string TeamName { get; set; }
+            public decimal EFG_PCT { get; set; } //probably won't use, will probably use 2 and 3 point numbers instead
+            public decimal EFG_PCT_D { get; set; } //probably won't use, will probably use 2 and 3 point numbers instead
+            public decimal FTR { get; set; }
+            public decimal FTR_D { get; set; }
+            public decimal OREB_PCT { get; set; }
+            public decimal DREB_PCT { get; set; }
+            public decimal TO_PCT { get; set; }
+            public decimal TO_PCT_D { get; set; }
+            public decimal PT3_PCT { get; set; }
+            public decimal PT3_PCT_D { get; set; }
+            public decimal PT2_PCT { get; set; }
+            public decimal PT2_PCT_D { get; set; }
+            public decimal FT_PCT { get; set; }
+            public decimal FT_PCT_D { get; set; } //probably won't use
+            public decimal PT3_RATE { get; set; }
+            public decimal PT3_RATE_D { get; set; }
         }
     }
 }

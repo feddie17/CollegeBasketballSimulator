@@ -27,6 +27,7 @@ namespace CollegeBasketballSimulator
         public static int adjusterFoul { get; set; }
         public static int adjusterHomeTeam { get; set; }
         public static List<CollegeModel> GlobalCollegeData { get; set; }
+        public static List<CollegeModel> NewGlobalCollegeData { get; set; }
 
 
         public static void RunProgram()
@@ -34,6 +35,7 @@ namespace CollegeBasketballSimulator
             Console.WriteLine("Loading Program Data...");
             //initialize the global college data
             GlobalCollegeData = ScrapeLive2025Data().Result;
+            NewGlobalCollegeData = Simulator2026.ScrapeData2026();
             Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
             Console.WriteLine("-College basketball simulator for 2023-2024 season.");
             Console.WriteLine("-Work in progress, some features are not yet implemented: ");
@@ -61,22 +63,26 @@ namespace CollegeBasketballSimulator
 
             while (true)
             {
-                int adjuster2pt = -10;
-                int adjuster3pt = -10;
+                int adjuster2pt = -12;
+                int adjuster3pt = -12;
                 int adjusterTurnover = 0;
-                int adjusterFoul = 0;
+                int adjusterFoul = -5;
                 bool loop1 = true;
                 int mode = 0;
                 while (loop1)
                 {
                     string input1;
                     Console.WriteLine("Enter:");
-                    Console.WriteLine("'g' to simulate an individual game");
-                    Console.WriteLine("'b' to simulate the march madness bracket");
-                    Console.WriteLine("'n' to simulate a game with live 2025 data");
-                    Console.WriteLine("'m' to simulate multi matchup between 2 teams (2025)");
-                    Console.WriteLine("'s' to simulate the Big 12 Season so far (2025)");
-                    Console.WriteLine("'stats' to calculate prediction statistics");
+                    //Console.WriteLine("'g' to simulate an individual game");
+                    //Console.WriteLine("'b' to simulate the march madness bracket");
+                    Console.WriteLine("'n' to simulate a game with live 2026 data");
+                    Console.WriteLine("'m' to simulate multi matchup between 2 teams (2026)");
+                    //Console.WriteLine("'s' to simulate the Big 12 Season so far (2025)");
+                    //Console.WriteLine("'stats' to calculate prediction statistics");
+                    //Console.WriteLine("'mm' to simulate the current 2025 March Madness bracket");
+                    //Console.WriteLine("'mmm' to simulate multiple March Madness brackets.");
+                    Console.WriteLine("'ns' to simulate new Big 12 Season (2026)");
+                    Console.WriteLine("'es' to simulate the entire men's college basketball schedule (2026)");
                     Console.WriteLine("'q' to Quit");
                     input1 = Console.ReadLine();
                     if(input1 == "g")
@@ -110,6 +116,26 @@ namespace CollegeBasketballSimulator
                         loop1 = false;
                         mode = 5;
                     }
+                    else if(input1 == "mm")
+                    {
+                        loop1 = false;
+                        mode = 6;
+                    }
+                    else if(input1 == "mmm")
+                    {
+                        loop1 = false;
+                        mode = 7;
+                    }
+                    else if (input1 == "ns")
+                    {
+                        loop1 = false;
+                        mode = 8;
+                    }
+                    else if(input1 == "es")
+                    {
+                        loop1 = false;
+                        mode = 9;
+                    }
                     else if (input1 == "q")
                     {
                         Environment.Exit(0);
@@ -120,7 +146,7 @@ namespace CollegeBasketballSimulator
                     }
                 }
 
-                if(mode == 0)
+                if (mode == 0)
                 {
                     //tournament
                     Console.WriteLine("");
@@ -138,7 +164,7 @@ namespace CollegeBasketballSimulator
                         string input2;
                         Console.WriteLine("Enter 'go' to start the simulation: ");
                         input2 = Console.ReadLine();
-                        if( input2 == "go")
+                        if (input2 == "go")
                         {
                             loop2 = false;
                         }
@@ -149,7 +175,7 @@ namespace CollegeBasketballSimulator
                     }
                     DataController.SimulateMarchMadness(adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul);
                 }
-                else if(mode == 1)
+                else if (mode == 1)
                 {
                     //individual game
                     Console.WriteLine("");
@@ -158,49 +184,6 @@ namespace CollegeBasketballSimulator
                     Console.WriteLine("A timestamp will be displayed for each action of the game.");
                     Console.WriteLine("The timestamp consists of the time left in the half, the game score, ");
                     Console.WriteLine("the fouls for each team (in parentheses), and a description of the action.");
-                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
-                    Console.WriteLine("");
-                    string team1;
-                    string team2;
-                    Console.WriteLine("Enter Away Team Name: ");
-                    team1 = Console.ReadLine();
-                    Console.WriteLine("Enter Home Team Name: ");
-                    team2 = Console.ReadLine();
-                    bool loop3 = true;
-                    GameSpeed simSpeed = GameSpeed.Instant;
-                    while (loop3)
-                    {
-                        string input3;
-                        Console.WriteLine("Enter simulation speed: 's' for slow, 'm' for medium, 'f' for fast: ");
-                        input3 = Console.ReadLine();
-                        if (input3 == "s")
-                        {
-                            loop3 = false;
-                            simSpeed = GameSpeed.Slow;
-                        }
-                        else if (input3 == "m")
-                        {
-                            loop3 = false;
-                            simSpeed = GameSpeed.Medium;
-                        }
-                        else if(input3 == "f")
-                        {
-                            loop3 = false;
-                            simSpeed = GameSpeed.Fast;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid input, please try again. ");
-                        }
-                    }
-                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2024", false);
-                }
-                else if(mode == 2)
-                {
-                    //2025 matchup mode
-                    Console.WriteLine("");
-                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
-                    Console.WriteLine("2025 Mode");
                     Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
                     Console.WriteLine("");
                     string team1;
@@ -236,11 +219,76 @@ namespace CollegeBasketballSimulator
                             Console.WriteLine("Invalid input, please try again. ");
                         }
                     }
-                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2025", true);
+                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2024", false);
                 }
-                else if(mode == 3)
+                else if (mode == 2)
                 {
-                    //2025 multi matchup mode
+                    //2026 matchup mode
+                    Console.WriteLine("");
+                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("2026 Mode");
+                    Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
+                    Console.WriteLine("");
+                    string team1;
+                    string team2;
+                    Console.WriteLine("Enter Away Team Name: ");
+                    team1 = Console.ReadLine();
+                    Console.WriteLine("Enter Home Team Name: ");
+                    team2 = Console.ReadLine();
+                    bool loop3 = true;
+                    GameSpeed simSpeed = GameSpeed.Instant;
+                    while (loop3)
+                    {
+                        string input3;
+                        Console.WriteLine("Enter simulation speed: 's' for slow, 'm' for medium, 'f' for fast: ");
+                        input3 = Console.ReadLine();
+                        if (input3 == "s")
+                        {
+                            loop3 = false;
+                            simSpeed = GameSpeed.Slow;
+                        }
+                        else if (input3 == "m")
+                        {
+                            loop3 = false;
+                            simSpeed = GameSpeed.Medium;
+                        }
+                        else if (input3 == "f")
+                        {
+                            loop3 = false;
+                            simSpeed = GameSpeed.Fast;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input, please try again. ");
+                        }
+                    }
+                    bool loop4 = true;
+                    bool neutralGame = false;
+                    while (loop4)
+                    {
+                        string input4;
+                        Console.WriteLine("Neutral game?: ");
+                        input4 = Console.ReadLine();
+                        if (input4 == "y")
+                        {
+                            loop4 = false;
+                            neutralGame = true;
+                        }
+                        else if (input4 == "n")
+                        {
+                            loop4 = false;
+                            neutralGame = false;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid input, please try again. ");
+                        }
+                    }
+                    RunMatchup(team1, team2, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul, simSpeed, "2026", neutralGame);
+                }
+                else if (mode == 3)
+                {
+                    //2026 multi matchup mode
                     Console.WriteLine("");
                     Console.WriteLine("--------------------------------------------------------------------------------------------------------------");
                     Console.WriteLine("2025 Multi Matchup Mode");
@@ -298,7 +346,7 @@ namespace CollegeBasketballSimulator
                     }
                     RunBig12Season(times, adjuster2pt, adjuster3pt, adjusterTurnover, adjusterFoul);
                 }
-                else if(mode == 5)
+                else if (mode == 5)
                 {
                     //stats calculation mode
                     Console.WriteLine("");
@@ -447,6 +495,46 @@ namespace CollegeBasketballSimulator
                     Console.WriteLine("Total +/- Average: " + plusMinusTotalAvg);
                     Console.WriteLine("-------------------------------------------------");
                 }
+                else if (mode == 6)
+                {
+                    //2025 March Madness mode
+                    int times = 1000;
+                    int waitTime = 0;
+                    string input3;
+                    string input4;
+                    Console.WriteLine("Enter number of times to run each matchup of the tournament: ");
+                    input3 = Console.ReadLine();
+                    Console.WriteLine("Enter wait time between games: ");
+                    input4 = Console.ReadLine();
+                    try
+                    {
+                        times = Convert.ToInt32(input3);
+                        waitTime = Convert.ToInt32(input4);
+                    }
+                    catch
+                    {
+
+                    }
+                    MarchMadnessController.SimulateMarchMadness2025(times, waitTime);
+                }
+                else if(mode == 7)
+                {
+                    //march madness multi mode
+                    string input1;
+                    Console.WriteLine("Enter how many times you would like to run the tournament: ");
+                    input1 = Console.ReadLine();
+                    int input1Int = Convert.ToInt32(input1);
+                  
+                    MarchMadnessController.SimulateMarchMadness2025Aggregate(input1Int);
+                }
+                else if(mode == 8)
+                {
+                    Simulator2026.SimulateBig12Season();
+                }
+                else if(mode == 9)
+                {
+                    Simulator2026.SimulateFullSchedule();
+                }
             }
             
             
@@ -492,6 +580,10 @@ namespace CollegeBasketballSimulator
             {
                 data = GlobalCollegeData;
             }
+            else if(year == "2026")
+            {
+                data = NewGlobalCollegeData;
+            }
             else
             {
                 data = GetCollegeModelData();
@@ -501,7 +593,7 @@ namespace CollegeBasketballSimulator
             CollegeModel team2Model = data.Where(x => x.Name == team2).FirstOrDefault();
             if (team1Model == null || team2Model == null)
             {
-                Console.WriteLine("Invalid team name.");
+                Console.WriteLine("Invalid team name: " + team1 + " or " + team2);
                 return new MatchupResult();
             }
             
@@ -583,7 +675,7 @@ namespace CollegeBasketballSimulator
                 bool shortPosession = false;
                 if (team1HasBall == true)
                 {
-                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, firstHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                    PosessionResult res = RunPossession(team1Model, team2Model, team1Score, team2Score, firstHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
                     team1Score += res.PointsScored;
                     firstHalfTimeLeft -= res.SecondsUsed;
                     if (res.OffenseKeepsPosession == false)
@@ -607,7 +699,7 @@ namespace CollegeBasketballSimulator
                 }
                 else
                 {
-                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, firstHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                    PosessionResult res = RunPossession(team2Model, team1Model, team2Score, team1Score, firstHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
                     team2Score += res.PointsScored;
                     firstHalfTimeLeft -= res.SecondsUsed;
                     if (res.OffenseKeepsPosession == false)
@@ -662,7 +754,7 @@ namespace CollegeBasketballSimulator
                 bool shortPosession = false;
                 if (team1HasBall == true)
                 {
-                    PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, secondHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                    PosessionResult res = RunPossession(team1Model, team2Model, team1Score, team2Score, secondHalfTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
                     team1Score += res.PointsScored;
                     secondHalfTimeLeft -= res.SecondsUsed;
                     if (res.OffenseKeepsPosession == false)
@@ -686,7 +778,7 @@ namespace CollegeBasketballSimulator
                 }
                 else
                 {
-                    PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, secondHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                    PosessionResult res = RunPossession(team2Model, team1Model, team2Score, team1Score, secondHalfTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
                     team2Score += res.PointsScored;
                     secondHalfTimeLeft -= res.SecondsUsed;
                     if (res.OffenseKeepsPosession == false)
@@ -760,7 +852,7 @@ namespace CollegeBasketballSimulator
                         bool shortPosession = false;
                         if (team1HasBall == true)
                         {
-                            PosessionResult res = RunPoesssion(team1Model, team2Model, team1Score, team2Score, overtimeTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            PosessionResult res = RunPossession(team1Model, team2Model, team1Score, team2Score, overtimeTimeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
                             team1Score += res.PointsScored;
                             overtimeTimeLeft -= res.SecondsUsed;
                             if (res.OffenseKeepsPosession == false)
@@ -784,7 +876,7 @@ namespace CollegeBasketballSimulator
                         }
                         else
                         {
-                            PosessionResult res = RunPoesssion(team2Model, team1Model, team2Score, team1Score, overtimeTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                            PosessionResult res = RunPossession(team2Model, team1Model, team2Score, team1Score, overtimeTimeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
                             team2Score += res.PointsScored;
                             overtimeTimeLeft -= res.SecondsUsed;
                             if (res.OffenseKeepsPosession == false)
@@ -865,7 +957,7 @@ namespace CollegeBasketballSimulator
             
         }
 
-        public static PosessionResult RunPoesssion(CollegeModel team1, CollegeModel team2, int team1Score, int team2Score, int secsLeft, bool team1HasBall, bool shortPosession, int defensiveFouls, int offensiveFouls, int waitTime)
+        public static PosessionResult RunPossession(CollegeModel team1, CollegeModel team2, int team1Score, int team2Score, int secsLeft, bool team1HasBall, bool shortPosession, int defensiveFouls, int offensiveFouls, int waitTime)
         {
             //first init the result model
             PosessionResult res = new PosessionResult();
@@ -882,7 +974,7 @@ namespace CollegeBasketballSimulator
                 tempo = 0;
             }
 
-            //shortest posession should be like 5 seconds, so random should start at 20
+            //shortest possession should be like 5 seconds, so random should start at 20
             int randForTempo = r.Next(1, tempo + 1);
             int randForTime = r.Next(0, 3);
             int timeTaken = 0;
@@ -906,7 +998,7 @@ namespace CollegeBasketballSimulator
             string timestamp = GetTimeStamp(secsLeft - timeTaken);
 
             //------------------------------------------------------------- determine if a turnover happened ---------------------------------------------------------------------------------
-            //chance of turnover = average of offense turnover % - defense turnover %, divide it by 3 to get a slightly lower turnover rate for testing
+            //chance of turnover = average of offense turnover % - average of defense turnover %, divided by 3
             decimal chanceOfTurnover = ((team1.TOR_O + team2.TOR_D) / 3);
             decimal randForTurnover = r.Next(1, 101);
             if (chanceOfTurnover > randForTurnover)
@@ -2249,7 +2341,7 @@ namespace CollegeBasketballSimulator
 
             for (int i = 1; i <= times; i++)
             {
-                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -5, -5, 0, 0, GameSpeed.Instant, "2025", false);
+                DataModels.MatchupResult res = DataController.RunMatchup(team1, team2, -12, -12, 0, -5, GameSpeed.Instant, "2026", false);
                 if (res.Winner == team1)
                 {
                     Console.WriteLine(i.ToString() + ". (W) " + team1 + " " + res.WinnerScore.ToString() + "-" + res.LoserScore.ToString() + " " + team2);
@@ -2267,7 +2359,7 @@ namespace CollegeBasketballSimulator
             }
             Console.WriteLine("");
             Console.WriteLine("Totals: ");
-            Console.WriteLine(team1 + " win chance: " + ((iWins * 100) / times) + "%");
+            Console.WriteLine(team1 + " win chance: " + ((iWins * 100) / times) + "%" + " (" + iWins + "-" + uWins + " total wins)");
             Console.WriteLine("Average score: " + team1 + " " + (iTotal / times).ToString() + "-" + (uTotal / times).ToString() + " " + team2);
         }
 
@@ -2277,7 +2369,16 @@ namespace CollegeBasketballSimulator
             {
                 List<CollegeModel> res = new List<CollegeModel>();
                 HtmlWeb web = new HtmlWeb();
-                HtmlDocument doc = web.Load("https://barttorvik.com/trank.php#");
+                HtmlDocument doc = new HtmlDocument();
+                try
+                {
+                    doc = web.Load("https://barttorvik.com/#");
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine("EXCEPTION: " + ex.Message);
+                }
+                
                 List<HtmlNode> rows = doc.DocumentNode.Descendants("tr").ToList();
                 foreach(HtmlNode row in rows)
                 {
@@ -2320,7 +2421,7 @@ namespace CollegeBasketballSimulator
                         res.Add(curr);
 
                     }
-                    catch
+                    catch(Exception ex)
                     {
                         //just skip the team if they have a error.
                     }
@@ -2387,6 +2488,11 @@ namespace CollegeBasketballSimulator
             string ftpString = ftpDiv.InnerText;
             decimal ftp = Convert.ToDecimal(ftpString);
             team.FTP = ftp;
+            if(team.FTP == 0)
+            {
+                //the FTP didn't set, so default it
+                team.FTP = 70;
+            }
         }
 
     }
