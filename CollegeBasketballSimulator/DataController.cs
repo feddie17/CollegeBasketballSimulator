@@ -820,6 +820,41 @@ namespace CollegeBasketballSimulator
                 }
                 
             }
+            // run final 2 minutes
+            while (timeLeft > 0)
+            {
+
+                bool shortPosession = false;
+                int lead = Math.Abs(team1Score - team2Score);
+                if (timeLeft < 30 && lead > 6)
+                {
+                    break;
+                }
+                if (team1HasBall)
+                {
+                    PosessionResult res = RunLateGamePossession(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                    if (res == null)
+                    {
+                        break;
+                    }
+                    UdpateScore(res, shortPosession);
+                }
+                else
+                {
+                    PosessionResult res = RunLateGamePossession(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                    if (res == null)
+                    {
+                        break;
+                    }
+                    UdpateScore(res, shortPosession);
+                }
+                //wait a bit
+                if (waitTime > 0)
+                {
+                    System.Threading.Thread.Sleep(waitTime);
+                }
+
+            }
 
             int overtimeCounter = 0;
             //check for overtime
@@ -906,6 +941,41 @@ namespace CollegeBasketballSimulator
                         {
                             System.Threading.Thread.Sleep(waitTime);
                         }
+                    }
+                    // run final 2 minutes
+                    while (timeLeft > 0)
+                    {
+
+                        bool shortPosession = false;
+                        int lead = Math.Abs(team1Score - team2Score);
+                        if (timeLeft < 30 && lead > 6)
+                        {
+                            break;
+                        }
+                        if (team1HasBall)
+                        {
+                            PosessionResult res = RunLateGamePossession(team1Model, team2Model, team1Score, team2Score, timeLeft, team1HasBall, shortPosession, team2Fouls, team1Fouls, waitTime);
+                            if (res == null)
+                            {
+                                break;
+                            }
+                            UdpateScore(res, shortPosession);
+                        }
+                        else
+                        {
+                            PosessionResult res = RunLateGamePossession(team2Model, team1Model, team2Score, team1Score, timeLeft, team1HasBall, shortPosession, team1Fouls, team2Fouls, waitTime);
+                            if (res == null)
+                            {
+                                break;
+                            }
+                            UdpateScore(res, shortPosession);
+                        }
+                        //wait a bit
+                        if (waitTime > 0)
+                        {
+                            System.Threading.Thread.Sleep(waitTime);
+                        }
+
                     }
                 }
             }
