@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CBBSimulator Web Migration Roadmap</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0f1117;
+      color: #e1e4ed;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      line-height: 1.65;
+      padding: 2rem 1rem;
+    }
+
+    .container { max-width: 960px; margin: 0 auto; }
+
+    h1 {
+      font-size: 2rem;
+      color: #4f8ff7;
+      border-bottom: 2px solid #4f8ff7;
+      padding-bottom: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    h1 .subtitle {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: #8b90a0;
+      margin-top: 0.25rem;
+    }
+
+    h2 {
+      font-size: 1.35rem;
+      color: #4f8ff7;
+      margin-top: 2.5rem;
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid #2a2e3a;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      color: #c0c6d6;
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    p, li { color: #c0c6d6; margin-bottom: 0.5rem; }
+    ul, ol { padding-left: 1.5rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.3rem; }
+
+    a { color: #4f8ff7; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    code {
+      background: #252837;
+      color: #7ec8f2;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.88em;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+
+    pre {
+      background: #1a1d27;
+      border: 1px solid #2a2e3a;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin-bottom: 1rem;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      color: #c0c6d6;
+    }
+
+    .surface {
+      background: #1a1d27;
+      border: 1px solid #2a2e3a;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
+    .callout {
+      background: #1a1d27;
+      border-left: 4px solid #4f8ff7;
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1.1rem;
+      margin-bottom: 1rem;
+      font-size: 0.92rem;
+    }
+
+    .callout-warn {
+      border-left-color: #f7a84f;
+    }
+
+    .callout strong { color: #e1e4ed; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    th {
+      background: #252837;
+      color: #e1e4ed;
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 2px solid #4f8ff7;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid #2a2e3a;
+      color: #c0c6d6;
+    }
+
+    tr:hover td { background: #1f2233; }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+
+    .badge-complete { background: #1a3a2a; color: #4ade80; border: 1px solid #2d5a3d; }
+    .badge-progress { background: #3a2a1a; color: #f7a84f; border: 1px solid #5a3d1d; }
+    .badge-not-started { background: #252837; color: #8b90a0; border: 1px solid #3a3e4a; }
+
+    .phase-header {
+      background: #252837;
+      padding: 0.5rem 0.75rem;
+      font-weight: 600;
+      color: #4f8ff7;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .phase-header td { background: #252837; border-bottom: 1px solid #3a3e4a; }
+
+    .progress-bar-bg {
+      background: #252837;
+      border-radius: 6px;
+      height: 22px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #4f8ff7, #4ade80);
+      height: 100%;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #0f1117;
+      min-width: 2.5rem;
+    }
+
+    .toc {
+      columns: 2;
+      column-gap: 2rem;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .toc li {
+      break-inside: avoid;
+      margin-bottom: 0.35rem;
+    }
+
+    .toc a { font-size: 0.92rem; }
+    .toc .toc-num { color: #4f8ff7; font-weight: 600; margin-right: 0.35rem; }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid #2a2e3a;
+      text-align: center;
+      color: #5a5e6e;
+      font-size: 0.82rem;
+    }
+
+    footer .tech-stack { color: #8b90a0; margin-top: 0.3rem; }
+
+    @media (max-width: 640px) {
+      .toc { columns: 1; }
+      pre { font-size: 0.72rem; }
+      table { font-size: 0.8rem; }
+      th, td { padding: 0.4rem 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>
+    CBBSimulator Web Migration Roadmap
+    <span class="subtitle">.NET 8 Console App &rarr; ASP.NET Core + SignalR + Vue.js 3</span>
+  </h1>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="surface" style="margin-top:1.25rem;">
+    <ol class="toc">
+      <li><span class="toc-num">1.</span><a href="#current-state">Current State Analysis</a></li>
+      <li><span class="toc-num">2.</span><a href="#target-arch">Target Architecture</a></li>
+      <li><span class="toc-num">3.</span><a href="#signalr">Real-Time Strategy (SignalR)</a></li>
+      <li><span class="toc-num">4.</span><a href="#data-layer">Data Layer &amp; Caching</a></li>
+      <li><span class="toc-num">5.</span><a href="#api">Backend API Design</a></li>
+      <li><span class="toc-num">6.</span><a href="#frontend">Frontend Design</a></li>
+      <li><span class="toc-num">7.</span><a href="#concurrency">Concurrency &amp; Scaling</a></li>
+      <li><span class="toc-num">8.</span><a href="#hosting">Hosting</a></li>
+      <li><span class="toc-num">9.</span><a href="#cicd">Deployment &amp; CI/CD</a></li>
+      <li><span class="toc-num">10.</span><a href="#testing">Testing Strategy</a></li>
+      <li><span class="toc-num">11.</span><a href="#phases">Phased Roadmap</a></li>
+      <li><span class="toc-num">12.</span><a href="#risks">Risks &amp; Open Questions</a></li>
+      <li><span class="toc-num">13.</span><a href="#milestones">Milestone Tracker</a></li>
+    </ol>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 1. CURRENT STATE -->
+  <!-- ============================================================ -->
+  <h2 id="current-state">1. Current State Analysis</h2>
+
+  <p>The simulator is a <strong>.NET 8 console application</strong> that scrapes team statistics from Bart Torvik, then runs possession-level simulations for single games, full seasons, and March Madness tournaments.</p>
+
+  <h3>Key Source Files</h3>
+  <table>
+    <tr><th>File</th><th>~Lines</th><th>Responsibility</th></tr>
+    <tr><td><code>DataController.cs</code></td><td>3,200</td><td>Scraping, data processing, game simulation, season simulation</td></tr>
+    <tr><td><code>MarchMadnessController.cs</code></td><td>1,000</td><td>Bracket seeding, round-by-round tournament simulation</td></tr>
+    <tr><td><code>Simulator2026.cs</code></td><td>600</td><td>Season orchestration, scheduling, conference play</td></tr>
+    <tr><td><code>DataModels.cs</code></td><td>120</td><td>CollegeModel, PossessionResult, MatchupResult, ScheduleGame</td></tr>
+  </table>
+
+  <h3>Core Domain Models</h3>
+  <ul>
+    <li><code>CollegeModel</code> &mdash; team stats (AdjO, AdjD, tempo, FT%, 3P%, etc.)</li>
+    <li><code>PossessionResult</code> &mdash; single-possession outcome (points, event type)</li>
+    <li><code>MatchupResult</code> &mdash; full game result (scores, possessions, winner)</li>
+    <li><code>ScheduleGame</code> &mdash; scheduled game with teams, date, conference flag</li>
+  </ul>
+
+  <div class="callout">
+    <strong>Key challenge:</strong> <code>DataController.cs</code> is a 3,200-line monolith mixing I/O, simulation logic, and UI. The migration is primarily a separation-of-concerns refactor that also adds a web layer.
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 2. TARGET ARCHITECTURE -->
+  <!-- ============================================================ -->
+  <h2 id="target-arch">2. Target Architecture</h2>
+
+  <p>Four-project solution: shared core, data access, web host, and Vue SPA client.</p>
+
+  <pre>
+CBBSimulator/
++-- CBBSimulator.Core/          Models, simulation engines, interfaces
+|   +-- Models/                 CollegeModel, GameEvent, SimulationConfig
+|   +-- Engines/                PossessionEngine, GameEngine, TournamentEngine, SeasonEngine
+|   +-- Interfaces/             IGameEngine, ITournamentEngine, ISeasonEngine
+|
++-- CBBSimulator.Data/          Scrapers, caching, data services
+|   +-- Scrapers/               TorkvikScraper, CsvDataLoader
+|   +-- Services/               TeamDataService, TeamDataCache
+|   +-- Interfaces/             ITeamDataService
+|
++-- CBBSimulator.Web/           ASP.NET Core host
+|   +-- Hubs/                   GameHub, TournamentHub, SeasonHub
+|   +-- Endpoints/              TeamsEndpoints, SimulationEndpoints
+|   +-- Services/               DataRefreshService, SimulationWorkerService
+|   +-- Program.cs
+|
++-- CBBSimulator.Client/        Vue 3 SPA (Vite)
+    +-- src/
+        +-- views/              HomeView, GameView, TournamentView, SeasonView
+        +-- components/         TeamSelector, Scoreboard, PossessionLog, BracketViewer, StandingsTable
+        +-- composables/        useSignalR, useGameState
+        +-- stores/             teams.ts, game.ts, tournament.ts, season.ts
+  </pre>
+
+  <pre>
+  Architecture Diagram
+
+  +-------------------+         +-----------------------+
+  |   Vue.js 3 SPA    |  HTTP   |   ASP.NET Core 8      |
+  |  (Vite + Pinia)   |&lt;-------&gt;|   REST Endpoints      |
+  |                   |         |                       |
+  |  useSignalR()     |  WSS    |   SignalR Hubs         |
+  |  composable       |&lt;=======&gt;|   Game/Tourn/Season   |
+  +-------------------+         +----------+------------+
+                                           |
+                          +----------------+----------------+
+                          |                |                 |
+                  +-------v------+  +------v-------+  +-----v--------+
+                  |  GameEngine  |  | TournEngine  |  | SeasonEngine |
+                  |  (Core)      |  | (Core)       |  | (Core)       |
+                  +--------------+  +--------------+  +--------------+
+                          |
+                  +-------v--------------+
+                  |  TeamDataService      |
+                  |  IMemoryCache (1hr)   |
+                  |  TorkvikScraper       |
+                  +----------------------+
+  </pre>
+
+  <!-- ============================================================ -->
+  <!-- 3. SIGNALR -->
+  <!-- ============================================================ -->
+  <h2 id="signalr">3. Real-Time Strategy (SignalR)</h2>
+
+  <table>
+    <tr><th>Hub</th><th>Events (Server &rarr; Client)</th><th>Methods (Client &rarr; Server)</th></tr>
+    <tr>
+      <td><code>GameHub</code></td>
+      <td><code>PossessionResult</code>, <code>ScoreUpdate</code>, <code>GameOver</code></td>
+      <td><code>StartGame(team1, team2)</code>, <code>SetSpeed(ms)</code></td>
+    </tr>
+    <tr>
+      <td><code>TournamentHub</code></td>
+      <td><code>MatchComplete</code>, <code>RoundComplete</code>, <code>ChampionCrowned</code></td>
+      <td><code>StartTournament(config)</code>, <code>SimulateNextRound()</code></td>
+    </tr>
+    <tr>
+      <td><code>SeasonHub</code></td>
+      <td><code>GameResult</code>, <code>StandingsUpdate</code>, <code>SeasonComplete</code></td>
+      <td><code>StartSeason(config)</code>, <code>SimulateWeek()</code></td>
+    </tr>
+  </table>
+
+  <h3>Group Isolation</h3>
+  <p>Each simulation gets a unique group ID (<code>Guid</code>). Clients join via <code>Groups.AddToGroupAsync</code>. Events are scoped to the group so multiple users can run independent simulations concurrently.</p>
+
+  <h3>Streaming Pattern</h3>
+  <pre>
+// Server-side: GameEngine exposes IAsyncEnumerable
+public async IAsyncEnumerable&lt;GameEvent&gt; SimulateGame(
+    CollegeModel home, CollegeModel away, SimulationConfig config)
+{
+    while (!gameOver)
+    {
+        var result = _possessionEngine.RunPossession(offense, defense);
+        yield return new GameEvent { Type = "Possession", Data = result };
+        await Task.Delay(config.PossessionDelayMs);
+    }
+    yield return new GameEvent { Type = "GameOver", Data = finalScore };
+}
+
+// Hub streams to group
+await foreach (var evt in _engine.SimulateGame(home, away, config))
+{
+    await Clients.Group(groupId).SendAsync(evt.Type, evt.Data);
+}
+  </pre>
+
+  <!-- ============================================================ -->
+  <!-- 4. DATA LAYER -->
+  <!-- ============================================================ -->
+  <h2 id="data-layer">4. Data Layer &amp; Caching</h2>
+
+  <div class="callout">
+    <strong>No database needed.</strong> ~360 D1 teams fit comfortably in memory (&lt;1MB serialized). The only external data source is Bart Torvik.
+  </div>
+
+  <h3>Two-Layer Cache Strategy</h3>
+  <table>
+    <tr><th>Layer</th><th>Implementation</th><th>TTL</th><th>Purpose</th></tr>
+    <tr><td>L1</td><td><code>IMemoryCache</code></td><td>1 hour</td><td>Hot path &mdash; team lookups during simulation</td></tr>
+    <tr><td>Background</td><td><code>DataRefreshService</code></td><td>Periodic</td><td>Proactive refresh before cache expires</td></tr>
+  </table>
+
+  <ul>
+    <li><strong>Batch FT% pre-fetch:</strong> Scrape all team free throw percentages in a single pass during refresh, avoiding per-team HTTP calls during simulation.</li>
+    <li><strong>Redis:</strong> Only needed if scaling horizontally. Single-server deployment uses in-memory cache exclusively.</li>
+    <li><strong>Fallback:</strong> If Torvik is unreachable, serve stale cache with a warning header. <code>CsvDataLoader</code> provides a static fallback dataset.</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <!-- 5. API -->
+  <!-- ============================================================ -->
+  <h2 id="api">5. Backend API Design</h2>
+
+  <h3>REST Endpoints (Minimal APIs)</h3>
+  <table>
+    <tr><th>Method</th><th>Route</th><th>Description</th></tr>
+    <tr><td><code>GET</code></td><td><code>/api/teams</code></td><td>All teams (cached)</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/teams/{name}</code></td><td>Single team by name</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/teams/search?q=</code></td><td>Fuzzy search (autocomplete)</td></tr>
+    <tr><td><code>GET</code></td><td><code>/api/health</code></td><td>Health check (cache age, team count)</td></tr>
+    <tr><td><code>POST</code></td><td><code>/api/simulate/quick</code></td><td>Stateless quick sim &mdash; returns MatchupResult</td></tr>
+  </table>
+
+  <h3>GameEngine Core Loop</h3>
+  <pre>
+public async IAsyncEnumerable&lt;GameEvent&gt; SimulateGame(
+    CollegeModel home, CollegeModel away, SimulationConfig config)
+{
+    var state = new GameState(home, away);
+
+    while (state.PossessionsRemaining &gt; 0)
+    {
+        var possession = _possessionEngine.Run(state);
+        state.Apply(possession);
+
+        yield return GameEvent.Possession(possession);
+        yield return GameEvent.ScoreUpdate(state.Score);
+
+        await Task.Delay(config.DelayMs);
+    }
+
+    yield return GameEvent.GameOver(state.FinalResult);
+}
+  </pre>
+
+  <!-- ============================================================ -->
+  <!-- 6. FRONTEND -->
+  <!-- ============================================================ -->
+  <h2 id="frontend">6. Frontend Design</h2>
+
+  <h3>Tech Stack</h3>
+  <ul>
+    <li><strong>Vue.js 3</strong> with Composition API + <code>&lt;script setup&gt;</code></li>
+    <li><strong>Vite</strong> for dev server and build</li>
+    <li><strong>Pinia</strong> for state management</li>
+    <li><strong>@microsoft/signalr</strong> for real-time communication</li>
+  </ul>
+
+  <h3>Views &amp; Components</h3>
+  <table>
+    <tr><th>Views</th><th>Key Components</th></tr>
+    <tr><td><code>HomeView</code></td><td>Mode selector, quick stats</td></tr>
+    <tr><td><code>GameView</code></td><td><code>TeamSelector</code>, <code>Scoreboard</code>, <code>PossessionLog</code></td></tr>
+    <tr><td><code>TournamentView</code></td><td><code>BracketViewer</code>, round controls</td></tr>
+    <tr><td><code>SeasonView</code></td><td><code>StandingsTable</code>, week navigator</td></tr>
+  </table>
+
+  <h3>SignalR Composable</h3>
+  <pre>
+// composables/useSignalR.ts
+export function useSignalR(hubUrl: string) {
+  const connection = ref&lt;HubConnection | null&gt;(null)
+  const connected = ref(false)
+
+  async function start() {
+    connection.value = new HubConnectionBuilder()
+      .withUrl(hubUrl)
+      .withAutomaticReconnect()
+      .build()
+    await connection.value.start()
+    connected.value = true
+  }
+
+  function on(event: string, handler: (...args: any[]) =&gt; void) {
+    connection.value?.on(event, handler)
+  }
+
+  async function invoke(method: string, ...args: any[]) {
+    return connection.value?.invoke(method, ...args)
+  }
+
+  onUnmounted(() =&gt; connection.value?.stop())
+
+  return { connection, connected, start, on, invoke }
+}
+  </pre>
+
+  <h3>Pinia Stores</h3>
+  <ul>
+    <li><code>useTeamStore</code> &mdash; team list, search results, selected teams</li>
+    <li><code>useGameStore</code> &mdash; current game state, score, possession log</li>
+    <li><code>useTournamentStore</code> &mdash; bracket state, round results</li>
+    <li><code>useSeasonStore</code> &mdash; standings, weekly results</li>
+  </ul>
+
+  <!-- ============================================================ -->
+  <!-- 7. CONCURRENCY -->
+  <!-- ============================================================ -->
+  <h2 id="concurrency">7. Concurrency &amp; Scaling</h2>
+
+  <h3>Worker Pool Pattern</h3>
+  <pre>
+// Bounded channel prevents runaway memory usage
+var channel = Channel.CreateBounded&lt;SimulationRequest&gt;(
+    new BoundedChannelOptions(100)
+    {
+        FullMode = BoundedChannelFullMode.Wait
+    });
+
+// SimulationWorkerService reads from channel
+protected override async Task ExecuteAsync(CancellationToken ct)
+{
+    await foreach (var request in _channel.Reader.ReadAllAsync(ct))
+    {
+        _ = ProcessSimulation(request, ct);  // fire-and-forget per sim
+    }
+}
+  </pre>
+
+  <h3>Scaling Path</h3>
+  <table>
+    <tr><th>Stage</th><th>Approach</th><th>Capacity</th></tr>
+    <tr><td>1. Single Server</td><td>In-process channels + IMemoryCache</td><td>~1,000+ concurrent users</td></tr>
+    <tr><td>2. Vertical</td><td>Bigger VM, more worker tasks</td><td>~5,000+ concurrent users</td></tr>
+    <tr><td>3. Horizontal</td><td>Redis backplane for SignalR, shared cache</td><td>Effectively unlimited</td></tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- 8. HOSTING -->
+  <!-- ============================================================ -->
+  <h2 id="hosting">8. Hosting</h2>
+
+  <div class="callout">
+    <strong>Recommendation:</strong> Azure App Service B1 (~$13/mo). WebSocket support, easy deployment via GitHub Actions, custom domain + TLS included.
+  </div>
+
+  <table>
+    <tr><th>Option</th><th>Cost</th><th>Pros</th><th>Cons</th></tr>
+    <tr><td>Azure App Service B1</td><td>~$13/mo</td><td>Native .NET, easy CI/CD, WebSockets</td><td>Cold starts on lower tiers</td></tr>
+    <tr><td>Fly.io</td><td>~$5-10/mo</td><td>Docker-native, global edge</td><td>Less .NET tooling</td></tr>
+    <tr><td>Hetzner VPS</td><td>~$5/mo</td><td>Cheapest, full control</td><td>Manual ops, no managed TLS</td></tr>
+  </table>
+
+  <p><strong>Initial deployment:</strong> Serve the Vue SPA as static files from <code>wwwroot/</code> in the ASP.NET Core project. No separate hosting needed for the frontend.</p>
+
+  <!-- ============================================================ -->
+  <!-- 9. CI/CD -->
+  <!-- ============================================================ -->
+  <h2 id="cicd">9. Deployment &amp; CI/CD</h2>
+
+  <h3>GitHub Actions Pipeline</h3>
+  <pre>
+# .github/workflows/deploy.yml
+name: Build &amp; Deploy
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with: { dotnet-version: '8.0.x' }
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: '20' }
+
+      - name: Build Vue client
+        run: cd src/CBBSimulator.Client &amp;&amp; npm ci &amp;&amp; npm run build
+
+      - name: Copy dist to wwwroot
+        run: cp -r src/CBBSimulator.Client/dist/* src/CBBSimulator.Web/wwwroot/
+
+      - name: Build &amp; Test .NET
+        run: dotnet test --configuration Release
+
+      - name: Publish
+        run: dotnet publish src/CBBSimulator.Web -c Release -o ./publish
+
+      - name: Deploy to Azure
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: cbbsimulator
+          package: ./publish
+  </pre>
+
+  <h3>Docker Multi-Stage Build</h3>
+  <pre>
+# Stage 1: Build Vue client
+FROM node:20-alpine AS client-build
+WORKDIR /app/client
+COPY src/CBBSimulator.Client/package*.json ./
+RUN npm ci
+COPY src/CBBSimulator.Client/ ./
+RUN npm run build
+
+# Stage 2: Build .NET
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS dotnet-build
+WORKDIR /src
+COPY . .
+COPY --from=client-build /app/client/dist src/CBBSimulator.Web/wwwroot
+RUN dotnet publish src/CBBSimulator.Web -c Release -o /app/publish
+
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=dotnet-build /app/publish .
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
+  </pre>
+
+  <!-- ============================================================ -->
+  <!-- 10. TESTING -->
+  <!-- ============================================================ -->
+  <h2 id="testing">10. Testing Strategy</h2>
+
+  <table>
+    <tr><th>Layer</th><th>Tool</th><th>What to Test</th></tr>
+    <tr><td>Unit</td><td>xUnit + seeded <code>Random</code></td><td>PossessionEngine determinism, score calculations, model validation</td></tr>
+    <tr><td>Integration</td><td><code>WebApplicationFactory</code> + SignalR test client</td><td>API endpoints, hub connections, cache behavior</td></tr>
+    <tr><td>E2E</td><td>Playwright</td><td>Full game flow, bracket interaction, team search</td></tr>
+    <tr><td>Resilience</td><td>Weekly scheduled job</td><td>Scraper still parses Torvik HTML correctly</td></tr>
+  </table>
+
+  <div class="callout callout-warn">
+    <strong>Scraper fragility:</strong> Torvik has no public API. Schedule a weekly CI job that scrapes a known team and asserts expected fields are present. Alert on failure.
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- 11. PHASED ROADMAP -->
+  <!-- ============================================================ -->
+  <h2 id="phases">11. Phased Roadmap</h2>
+
+  <table>
+    <tr><th>Phase</th><th>Scope</th><th>Duration</th></tr>
+    <tr>
+      <td><strong>1. Foundation &amp; Core Extraction</strong></td>
+      <td>Create solution structure. Extract models and engine interfaces into <code>CBBSimulator.Core</code>. Set up data service layer in <code>CBBSimulator.Data</code>. Scaffold Vue client.</td>
+      <td>2&ndash;3 weeks</td>
+    </tr>
+    <tr>
+      <td><strong>2. Web API &amp; SignalR Backend</strong></td>
+      <td>Implement REST endpoints, SignalR hubs, background worker service. Port <code>PossessionEngine</code> and <code>GameEngine</code> logic from <code>DataController</code>.</td>
+      <td>2 weeks</td>
+    </tr>
+    <tr>
+      <td><strong>3. Vue.js Frontend &mdash; Game Mode</strong></td>
+      <td>Build <code>TeamSelector</code>, <code>Scoreboard</code>, <code>PossessionLog</code>. Wire SignalR for live game simulation. Implement <code>useSignalR</code> composable.</td>
+      <td>2&ndash;3 weeks</td>
+    </tr>
+    <tr>
+      <td><strong>4. Tournament &amp; Season Modes</strong></td>
+      <td>Port tournament logic from <code>MarchMadnessController</code>. Port season logic from <code>Simulator2026</code>. Build <code>BracketViewer</code> and <code>StandingsTable</code>.</td>
+      <td>2&ndash;3 weeks</td>
+    </tr>
+    <tr>
+      <td><strong>5. Polish, Deploy &amp; Harden</strong></td>
+      <td>Error handling, loading states, responsive design. CI/CD pipeline. Production deployment. Performance profiling.</td>
+      <td>1&ndash;2 weeks</td>
+    </tr>
+    <tr>
+      <td><strong>6. Future Enhancements</strong></td>
+      <td>Spectator mode (shareable URLs), historical data, player-level simulation, custom bracket creation, dark/light theme toggle.</td>
+      <td>Ongoing</td>
+    </tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- 12. RISKS -->
+  <!-- ============================================================ -->
+  <h2 id="risks">12. Risks &amp; Open Questions</h2>
+
+  <table>
+    <tr><th>Risk</th><th>Impact</th><th>Mitigation</th></tr>
+    <tr>
+      <td>Torvik HTML structure changes</td>
+      <td>High &mdash; scraper breaks</td>
+      <td>Weekly CI canary test; CSV fallback dataset</td>
+    </tr>
+    <tr>
+      <td>Rate limiting by Torvik</td>
+      <td>Medium &mdash; data refresh fails</td>
+      <td>Aggressive caching; batch requests; respect <code>robots.txt</code></td>
+    </tr>
+    <tr>
+      <td>Simulation logic bugs after extraction</td>
+      <td>High &mdash; wrong results</td>
+      <td>Seeded-random golden tests comparing old vs. new output</td>
+    </tr>
+    <tr>
+      <td>SignalR connection limits</td>
+      <td>Low &mdash; unlikely at current scale</td>
+      <td>Bounded channel; group isolation; scale-out plan ready</td>
+    </tr>
+    <tr>
+      <td>Scope creep</td>
+      <td>Medium &mdash; delays launch</td>
+      <td>Strict phase gates; ship game mode first, iterate</td>
+    </tr>
+  </table>
+
+  <!-- ============================================================ -->
+  <!-- 13. MILESTONE TRACKER -->
+  <!-- ============================================================ -->
+  <h2 id="milestones">13. Milestone Tracker</h2>
+
+  <div class="surface" style="margin-bottom: 1.25rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+      <strong style="color: #e1e4ed;">Overall Progress</strong>
+      <span style="color: #8b90a0; font-size: 0.85rem;">10 of 25 complete (40%)</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" style="width: 40%;">40%</div>
+    </div>
+    <div style="display: flex; gap: 1.5rem; font-size: 0.82rem; color: #8b90a0; margin-top: 0.4rem;">
+      <span><span class="badge badge-complete">Complete</span> 10</span>
+      <span><span class="badge badge-progress">In Progress</span> 0</span>
+      <span><span class="badge badge-not-started">Not Started</span> 15</span>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:2.5rem">#</th><th>Milestone</th><th style="width:7rem">Status</th><th>Details</th></tr>
+    </thead>
+    <tbody>
+      <!-- Phase 1 -->
+      <tr class="phase-header"><td colspan="4">Phase 1 &mdash; Foundation &amp; Core Extraction</td></tr>
+      <tr>
+        <td>1</td>
+        <td>Project skeleton scaffolded</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Solution structure, all projects created, references configured, Vue scaffolded</td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td>Data models extracted to Core</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>CollegeModel, PossessionResult, MatchupResult, ScheduleGame, GameEvent, SimulationConfig</td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td>Simulation engine interfaces defined</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>IGameEngine, PossessionEngine, GameEngine, TournamentEngine, SeasonEngine stubs</td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td>Data service layer created</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>ITeamDataService, TeamDataService, TorkvikScraper, CsvDataLoader, TeamDataCache stubs</td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Web API endpoints stubbed</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>TeamsEndpoints, SimulationEndpoints, health check</td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>SignalR hubs stubbed</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>GameHub, TournamentHub, SeasonHub with group management</td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Background services created</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>DataRefreshService, SimulationWorkerService with bounded Channel</td>
+      </tr>
+      <tr>
+        <td>8</td>
+        <td>Vue.js SPA scaffolded</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Router, Pinia stores, SignalR composable, all views and components stubbed</td>
+      </tr>
+      <tr>
+        <td>9</td>
+        <td>Build and tests passing</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>5 tests pass, solution builds cleanly</td>
+      </tr>
+
+      <!-- Phase 2 -->
+      <tr class="phase-header"><td colspan="4">Phase 2 &mdash; Web API &amp; SignalR Backend</td></tr>
+      <tr>
+        <td>10</td>
+        <td>Port PossessionEngine logic</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Ported RunPossession from DataController, refactored for testability with injected Random</td>
+      </tr>
+      <tr>
+        <td>11</td>
+        <td>Port GameEngine logic</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Extract RunMatchup, emit IAsyncEnumerable&lt;GameEvent&gt;</td>
+      </tr>
+      <tr>
+        <td>12</td>
+        <td>Port data scrapers</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Implement TorkvikScraper and CsvDataLoader from existing code</td>
+      </tr>
+      <tr>
+        <td>13</td>
+        <td>Implement DataRefreshService</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Hourly scrape with batch FT% prefetch</td>
+      </tr>
+      <tr>
+        <td>14</td>
+        <td>Wire GameHub to GameEngine</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Connect SignalR hub to simulation worker service</td>
+      </tr>
+
+      <!-- Phase 3 -->
+      <tr class="phase-header"><td colspan="4">Phase 3 &mdash; Vue.js Frontend &mdash; Game Mode</td></tr>
+      <tr>
+        <td>15</td>
+        <td>Implement TeamSelector with search</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Debounced autocomplete against /api/teams/search</td>
+      </tr>
+      <tr>
+        <td>16</td>
+        <td>Implement live Scoreboard</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Real-time score updates via SignalR</td>
+      </tr>
+      <tr>
+        <td>17</td>
+        <td>Implement PossessionLog</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Scrolling play-by-play feed</td>
+      </tr>
+
+      <!-- Phase 4 -->
+      <tr class="phase-header"><td colspan="4">Phase 4 &mdash; Tournament &amp; Season Modes</td></tr>
+      <tr>
+        <td>18</td>
+        <td>Port TournamentEngine logic</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Extract from MarchMadnessController</td>
+      </tr>
+      <tr>
+        <td>19</td>
+        <td>Build BracketViewer component</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>SVG/CSS bracket visualization</td>
+      </tr>
+      <tr>
+        <td>20</td>
+        <td>Port SeasonEngine logic</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Extract from Simulator2026</td>
+      </tr>
+      <tr>
+        <td>21</td>
+        <td>Build StandingsTable component</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Sortable standings with conference filter</td>
+      </tr>
+
+      <!-- Phase 5 -->
+      <tr class="phase-header"><td colspan="4">Phase 5 &mdash; Polish, Deploy &amp; Harden</td></tr>
+      <tr>
+        <td>22</td>
+        <td>Spectator mode</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Shareable URLs for watching same simulation</td>
+      </tr>
+      <tr>
+        <td>23</td>
+        <td>CI/CD pipeline</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>GitHub Actions build/test/deploy</td>
+      </tr>
+      <tr>
+        <td>24</td>
+        <td>Production deployment</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Deploy to Azure App Service or alternative</td>
+      </tr>
+      <tr>
+        <td>25</td>
+        <td>E2E tests</td>
+        <td><span class="badge badge-not-started">Not Started</span></td>
+        <td>Playwright tests for critical user flows</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>CBBSimulator Web Migration Roadmap &mdash; March 2026</div>
+    <div class="tech-stack">ASP.NET Core 8 &middot; SignalR &middot; Vue.js 3 &middot; Vite &middot; Pinia &middot; xUnit &middot; Playwright &middot; Docker &middot; GitHub Actions</div>
+  </footer>
+
+</div>
+</body>
+</html>
