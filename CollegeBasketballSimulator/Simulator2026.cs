@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -15,13 +16,22 @@ namespace CollegeBasketballSimulator
     //all 2026 code will be contained within this file.
     class Simulator2026
     {
-
         //this method will scrape the data from the csv file stored on the Bart Torvik site.
         public static List<CollegeModel> ScrapeData2026()
         {
+            var trankFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "trank_data.csv");
+
             try
             {
-                List<string> allLines = File.ReadAllLines("C:\\Users\\bfeddersen\\Desktop\\root\\TorvikData\\trank_data.csv").Skip(1).ToList();
+                if (!File.Exists(trankFilePath))
+                {
+                    throw new FileNotFoundException($"CSV not found at: {trankFilePath}\n" +
+                                                    "Make sure Data/trank_data.csv is set to Copy to Output Directory.");
+                }
+
+                List<string> allLines = File.ReadAllLines(trankFilePath)
+                    .Skip(1)
+                    .ToList();
                 List<CollegeModel> results = new List<CollegeModel>();
 
                 foreach(string line in allLines)
@@ -91,7 +101,13 @@ namespace CollegeBasketballSimulator
 
         public static List<ScheduleGame> Scrape2026Schedule()
         {
-            List<string> allLines = File.ReadAllLines("C:\\Users\\bfeddersen\\Desktop\\root\\TorvikData\\2026_super_sked.csv").ToList();
+            var skedFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "2026_super_sked.csv");
+            if (!File.Exists(skedFilePath))
+            {
+                throw new FileNotFoundException($"CSV not found at: {skedFilePath}\n" +
+                                                "Make sure Data/trank_data.csv is set to Copy to Output Directory.");
+            }
+            List<string> allLines = File.ReadAllLines(skedFilePath).ToList();
             List<ScheduleGame> results = new List<ScheduleGame>();
             foreach (string line in allLines)
             {
