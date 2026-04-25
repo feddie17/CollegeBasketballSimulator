@@ -47,7 +47,7 @@ public class DataRefreshService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to refresh data from Torvik");
+            _logger.LogError(ex, "Failed to refresh data from CSV source");
         }
     }
 }

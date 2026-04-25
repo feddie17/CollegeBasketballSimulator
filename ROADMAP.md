@@ -384,11 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 10
+- **Complete:** 11
 - **In Progress:** 0
-- **Not Started:** 15
+- **Not Started:** 14
 - **Total:** 25
-- **Progress:** 40%
+- **Progress:** 44%
+
+### Latest Push Update
+
+- **Commit:** `7f61d43` ("game engine logic")
+- **Milestone impact:** Milestone 11 moved to **Complete**
+- **Files:** `src/CBBSimulator.Core/Models/GameEvent.cs`, `src/CBBSimulator.Core/Models/GameSimulationState.cs`, `src/CBBSimulator.Core/Simulation/GameEngine.cs`, `tests/CBBSimulator.Core.Tests/UnitTest1.cs`
+- **Next step:** Milestone 12 (Port data scrapers), then Milestone 13 (DataRefreshService), then Milestone 14 (GameHub wiring)
 
 ### Milestones
 
@@ -406,7 +413,7 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 9 | Build and tests passing | Complete | 5 tests pass, solution builds cleanly |
 | **Phase 2 - Web API & SignalR Backend** ||||
 | 10 | Port PossessionEngine logic | Complete | Ported RunPossession from DataController, refactored for testability with injected Random |
-| 11 | Port GameEngine logic | Not Started | Extract RunMatchup, emit IAsyncEnumerable<GameEvent> |
+| 11 | Port GameEngine logic | Complete | Ported full game flow with period lifecycle events, clock/score streaming, halftime foul reset, late-game logic, overtime support, and final MatchupResult emission with deterministic tests |
 | 12 | Port data scrapers | Not Started | Implement TorkvikScraper and CsvDataLoader from existing code |
 | 13 | Implement DataRefreshService | Not Started | Hourly scrape with batch FT% prefetch |
 | 14 | Wire GameHub to GameEngine | Not Started | Connect SignalR hub to simulation worker service |

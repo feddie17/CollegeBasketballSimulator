@@ -7,19 +7,19 @@ namespace CBBSimulator.Data.Caching;
 public class TeamDataCache
 {
     private readonly IMemoryCache _cache;
-    private readonly ITorkvikScraper _scraper;
     private readonly ICsvDataLoader _csvLoader;
 
     private const string TeamsCacheKey = "teams";
     private const string ScheduleCacheKey = "schedule";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
+    private const string TeamCsvName = "trank_data.csv";
+    private const string ScheduleCsvName = "2026_super_sked.csv";
 
     public DateTime LastRefreshed { get; private set; }
 
-    public TeamDataCache(IMemoryCache cache, ITorkvikScraper scraper, ICsvDataLoader csvLoader)
+    public TeamDataCache(IMemoryCache cache, ICsvDataLoader csvLoader)
     {
         _cache = cache;
-        _scraper = scraper;
         _csvLoader = csvLoader;
     }
 
@@ -41,12 +41,8 @@ public class TeamDataCache
 
     public async Task<IReadOnlyList<CollegeModel>> RefreshTeamsAsync(CancellationToken ct = default)
     {
-        // TODO: Implement scraping + caching
-        // 1. Scrape team data from Torvik
-        // 2. Batch-fetch FT% for all teams
-        // 3. Cache with TTL
-        // 4. Update LastRefreshed
-        var teams = new List<CollegeModel>();
+        var teamsPath = ResolveDataFilePath(TeamCsvName);
+        var teams = await _csvLoader.LoadTeamDataAsync(teamsPath, ct);
         _cache.Set(TeamsCacheKey, teams, CacheDuration);
         LastRefreshed = DateTime.UtcNow;
         return teams;
@@ -54,8 +50,28 @@ public class TeamDataCache
 
     public async Task<IReadOnlyList<ScheduleGame>> RefreshScheduleAsync(CancellationToken ct = default)
     {
-        var schedule = new List<ScheduleGame>();
+        var schedulePath = ResolveDataFilePath(ScheduleCsvName);
+        var schedule = await _csvLoader.LoadScheduleAsync(schedulePath, ct);
         _cache.Set(ScheduleCacheKey, schedule, CacheDuration);
         return schedule;
+    }
+
+    private static string ResolveDataFilePath(string fileName)
+    {
+        var outputPath = Path.Combine(AppContext.BaseDirectory, "Data", fileName);
+        if (File.Exists(outputPath))
+        {
+            return outputPath;
+        }
+
+        // Fallback for local runs where content hasn't been copied to bin/Data yet.
+        var repoPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "src", "CBBSimulator.Data", "Data", fileName);
+        var fullRepoPath = Path.GetFullPath(repoPath);
+        if (File.Exists(fullRepoPath))
+        {
+            return fullRepoPath;
+        }
+
+        throw new FileNotFoundException($"CSV data file not found: {fileName}");
     }
 }

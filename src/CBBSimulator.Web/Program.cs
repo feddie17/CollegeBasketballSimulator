@@ -13,7 +13,6 @@ builder.Services.AddSingleton(new SimulationConfig());
 
 // Data layer
 builder.Services.AddMemoryCache();
-builder.Services.AddHttpClient<ITorkvikScraper, TorkvikScraper>();
 builder.Services.AddSingleton<ICsvDataLoader, CsvDataLoader>();
 builder.Services.AddSingleton<TeamDataCache>();
 builder.Services.AddSingleton<ITeamDataService, TeamDataService>();
