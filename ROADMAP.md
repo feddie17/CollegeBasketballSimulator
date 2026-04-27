@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 11
+- **Complete:** 13
 - **In Progress:** 0
-- **Not Started:** 14
+- **Not Started:** 12
 - **Total:** 25
-- **Progress:** 44%
+- **Progress:** 52%
 
 ### Latest Push Update
 
-- **Commit:** `7f61d43` ("game engine logic")
-- **Milestone impact:** Milestone 11 moved to **Complete**
-- **Files:** `src/CBBSimulator.Core/Models/GameEvent.cs`, `src/CBBSimulator.Core/Models/GameSimulationState.cs`, `src/CBBSimulator.Core/Simulation/GameEngine.cs`, `tests/CBBSimulator.Core.Tests/UnitTest1.cs`
-- **Next step:** Milestone 12 (Port data scrapers), then Milestone 13 (DataRefreshService), then Milestone 14 (GameHub wiring)
+- **Milestone impact:** Milestone 13 moved to **Complete**
+- **Files:** `src/CBBSimulator.Web/Endpoints/HealthEndpoints.cs` (new), `src/CBBSimulator.Web/Program.cs`, `src/CBBSimulator.Web/BackgroundServices/DataRefreshService.cs`
+- **Summary:** Added `/api/health` endpoint exposing team count, FTP coverage, last refresh timestamp, and cache age. Improved `DataRefreshService` logging to report team count and FT% coverage; eliminated redundant cache lookup. Data source remains CSV-only.
+- **Next step:** Milestone 14 (Wire GameHub to GameEngine - connect SignalR hub to simulation worker service)
 
 ### Milestones
 
@@ -414,8 +414,8 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | **Phase 2 - Web API & SignalR Backend** ||||
 | 10 | Port PossessionEngine logic | Complete | Ported RunPossession from DataController, refactored for testability with injected Random |
 | 11 | Port GameEngine logic | Complete | Ported full game flow with period lifecycle events, clock/score streaming, halftime foul reset, late-game logic, overtime support, and final MatchupResult emission with deterministic tests |
-| 12 | Port data scrapers | Not Started | Implement TorkvikScraper and CsvDataLoader from existing code |
-| 13 | Implement DataRefreshService | Not Started | Hourly scrape with batch FT% prefetch |
+| 12 | Port data scrapers | Complete | Implemented CsvDataLoader (CSV-based fallback dataset) and updated TeamDataCache; TorkvikScraper refactored |
+| 13 | Implement DataRefreshService | Complete | Hourly CSV refresh with FT% loaded inline; added /api/health endpoint exposing team count, FTP coverage, last refresh, and cache age |
 | 14 | Wire GameHub to GameEngine | Not Started | Connect SignalR hub to simulation worker service |
 | **Phase 3 - Vue.js Frontend - Game Mode** ||||
 | 15 | Implement TeamSelector with search | Not Started | Debounced autocomplete against /api/teams/search |

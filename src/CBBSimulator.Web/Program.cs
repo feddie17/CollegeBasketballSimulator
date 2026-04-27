@@ -47,6 +47,7 @@ app.UseStaticFiles();
 // REST endpoints
 app.MapTeamsEndpoints();
 app.MapSimulationEndpoints();
+app.MapHealthEndpoints();
 
 // SignalR hubs
 app.MapHub<GameHub>("/hubs/game");

@@ -1,3 +1,4 @@
+using CBBSimulator.Core.Models;
 using CBBSimulator.Data.Caching;
 
 namespace CBBSimulator.Web.BackgroundServices;
@@ -21,33 +22,36 @@ public class DataRefreshService : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        // Initial load on startup
         _logger.LogInformation("Performing initial data load...");
-        await RefreshDataAsync(stoppingToken);
-        _logger.LogInformation("Initial data load complete. {Count} teams loaded.",
-            (await _cache.GetTeamsAsync()).Count);
+        var teams = await RefreshDataAsync(stoppingToken);
+        _logger.LogInformation(
+            "Initial data load complete. {Count} teams loaded ({FtpCount} with FT% data).",
+            teams?.Count ?? 0, teams?.Count(t => t.FTP > 0) ?? 0);
 
-        // Periodic refresh
         while (!stoppingToken.IsCancellationRequested)
         {
             await Task.Delay(_refreshInterval, stoppingToken);
 
             _logger.LogInformation("Refreshing team data...");
-            await RefreshDataAsync(stoppingToken);
-            _logger.LogInformation("Data refresh complete.");
+            teams = await RefreshDataAsync(stoppingToken);
+            _logger.LogInformation(
+                "Data refresh complete. {Count} teams loaded.",
+                teams?.Count ?? 0);
         }
     }
 
-    private async Task RefreshDataAsync(CancellationToken ct)
+    private async Task<IReadOnlyList<CollegeModel>?> RefreshDataAsync(CancellationToken ct)
     {
         try
         {
-            await _cache.RefreshTeamsAsync(ct);
+            var teams = await _cache.RefreshTeamsAsync(ct);
             await _cache.RefreshScheduleAsync(ct);
+            return teams;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to refresh data from CSV source");
+            return null;
         }
     }
 }
