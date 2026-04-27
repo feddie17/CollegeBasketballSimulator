@@ -1,4 +1,9 @@
 using System.Threading.Channels;
+using CBBSimulator.Core.Models;
+using CBBSimulator.Core.Simulation;
+using CBBSimulator.Data.Services;
+using CBBSimulator.Web.Hubs;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CBBSimulator.Web.BackgroundServices;
 
@@ -67,8 +72,6 @@ public class SimulationWorkerService : BackgroundService
 
                 try
                 {
-                    // TODO: Resolve engine from DI scope, run simulation,
-                    // push events via IHubContext to the simulation's SignalR group
                     using var scope = _scopeFactory.CreateScope();
                     await RunSimulationAsync(scope.ServiceProvider, request, ct);
                 }
@@ -85,7 +88,65 @@ public class SimulationWorkerService : BackgroundService
         SimulationRequest request,
         CancellationToken ct)
     {
-        // TODO: Implement based on request.Type
-        await Task.CompletedTask;
+        switch (request.Type)
+        {
+            case "game":
+                await RunGameAsync(services, request, ct);
+                break;
+            default:
+                _logger.LogWarning(
+                    "Unknown simulation type: {Type} (id {Id})",
+                    request.Type, request.SimulationId);
+                break;
+        }
     }
+
+    private static async Task RunGameAsync(
+        IServiceProvider services,
+        SimulationRequest request,
+        CancellationToken ct)
+    {
+        var teamData = services.GetRequiredService<ITeamDataService>();
+        var engine = services.GetRequiredService<IGameEngine>();
+        var hub = services.GetRequiredService<IHubContext<GameHub>>();
+
+        var awayName = request.Parameters["away"];
+        var homeName = request.Parameters["home"];
+        var speed = Enum.TryParse<SimSpeed>(
+            request.Parameters.GetValueOrDefault("speed"), out var s)
+                ? s : SimSpeed.Medium;
+
+        var away = await teamData.GetTeamByNameAsync(awayName);
+        var home = await teamData.GetTeamByNameAsync(homeName);
+
+        var group = hub.Clients.Group(request.SimulationId);
+
+        if (away is null || home is null)
+        {
+            await group.SendAsync(
+                "Error",
+                new { message = $"Team not found: '{(away is null ? awayName : homeName)}'" },
+                ct);
+            return;
+        }
+
+        await foreach (var evt in engine.SimulateGameAsync(away, home, speed, ct))
+        {
+            var (method, payload) = MapEvent(evt);
+            await group.SendAsync(method, payload, ct);
+        }
+    }
+
+    private static (string Method, object Payload) MapEvent(GameEvent evt) => evt switch
+    {
+        PossessionEvent      p  => ("PossessionResult",  p),
+        ClockAdvancedEvent   c  => ("ClockAdvanced",     c),
+        ScoreUpdatedEvent    s  => ("ScoreUpdate",       s),
+        PeriodStartedEvent   ps => ("PeriodStarted",     ps),
+        PeriodEndedEvent     pe => ("PeriodEnded",       pe),
+        HalftimeEvent        h  => ("Halftime",          h),
+        OvertimeStartedEvent o  => ("OvertimeStarted",   o),
+        GameCompletedEvent   g  => ("GameOver",          g),
+        _                       => ("GameEvent",         evt)
+    };
 }

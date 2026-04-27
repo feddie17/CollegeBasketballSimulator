@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 13
+- **Complete:** 14
 - **In Progress:** 0
-- **Not Started:** 12
+- **Not Started:** 11
 - **Total:** 25
-- **Progress:** 52%
+- **Progress:** 56%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestone 13 moved to **Complete**
-- **Files:** `src/CBBSimulator.Web/Endpoints/HealthEndpoints.cs` (new), `src/CBBSimulator.Web/Program.cs`, `src/CBBSimulator.Web/BackgroundServices/DataRefreshService.cs`
-- **Summary:** Added `/api/health` endpoint exposing team count, FTP coverage, last refresh timestamp, and cache age. Improved `DataRefreshService` logging to report team count and FT% coverage; eliminated redundant cache lookup. Data source remains CSV-only.
-- **Next step:** Milestone 14 (Wire GameHub to GameEngine - connect SignalR hub to simulation worker service)
+- **Milestone impact:** Milestone 14 moved to **Complete**
+- **Files:** `src/CBBSimulator.Web/Hubs/GameHub.cs`, `src/CBBSimulator.Web/BackgroundServices/SimulationWorkerService.cs`, `src/CBBSimulator.Web/Program.cs`, `src/CBBSimulator.Web/Endpoints/SimulationEndpoints.cs`
+- **Summary:** GameHub now enqueues a `SimulationRequest` to `SimulationQueue`. `SimulationWorkerService.RunSimulationAsync` resolves `IGameEngine` and `IHubContext<GameHub>` per scope, looks up teams, runs `SimulateGameAsync`, and broadcasts each `GameEvent` to the SignalR group via one method per event type (`PossessionResult`, `ScoreUpdate`, `GameOver`, etc.). Removed duplicate `/api/health` stub from `SimulationEndpoints` to fix `AmbiguousMatchException`. Pause/Resume/SetSpeed remain stubs (deferred — needs sim-control registry).
+- **Next step:** Milestone 15 (Implement TeamSelector with search - debounced autocomplete against /api/teams/search)
 
 ### Milestones
 
@@ -416,7 +416,7 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 11 | Port GameEngine logic | Complete | Ported full game flow with period lifecycle events, clock/score streaming, halftime foul reset, late-game logic, overtime support, and final MatchupResult emission with deterministic tests |
 | 12 | Port data scrapers | Complete | Implemented CsvDataLoader (CSV-based fallback dataset) and updated TeamDataCache; TorkvikScraper refactored |
 | 13 | Implement DataRefreshService | Complete | Hourly CSV refresh with FT% loaded inline; added /api/health endpoint exposing team count, FTP coverage, last refresh, and cache age |
-| 14 | Wire GameHub to GameEngine | Not Started | Connect SignalR hub to simulation worker service |
+| 14 | Wire GameHub to GameEngine | Complete | GameHub enqueues SimulationRequest; worker resolves IGameEngine + IHubContext, streams GameEvents to SignalR group with one method per event type (PossessionResult, ScoreUpdate, GameOver, etc.) |
 | **Phase 3 - Vue.js Frontend - Game Mode** ||||
 | 15 | Implement TeamSelector with search | Not Started | Debounced autocomplete against /api/teams/search |
 | 16 | Implement live Scoreboard | Not Started | Real-time score updates via SignalR |

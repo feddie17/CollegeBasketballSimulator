@@ -1,4 +1,5 @@
 using CBBSimulator.Core.Configuration;
+using CBBSimulator.Core.Simulation;
 using CBBSimulator.Data.Caching;
 using CBBSimulator.Data.Scrapers;
 using CBBSimulator.Data.Services;
@@ -16,6 +17,9 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ICsvDataLoader, CsvDataLoader>();
 builder.Services.AddSingleton<TeamDataCache>();
 builder.Services.AddSingleton<ITeamDataService, TeamDataService>();
+
+// Simulation engines
+builder.Services.AddTransient<IGameEngine, GameEngine>();
 
 // Background services
 builder.Services.AddHostedService<DataRefreshService>();

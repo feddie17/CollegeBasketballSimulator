@@ -31,15 +31,6 @@ public static class SimulationEndpoints
 
             return Results.Ok(result);
         });
-
-        app.MapGet("/api/health", (ITeamDataService teamData) =>
-        {
-            return Results.Ok(new
-            {
-                Status = "Healthy",
-                teamData.LastRefreshed
-            });
-        });
     }
 }
 

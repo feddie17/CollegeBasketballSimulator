@@ -707,20 +707,20 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
   <div class="surface" style="margin-bottom: 1.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
       <strong style="color: #e1e4ed;">Overall Progress</strong>
-      <span style="color: #8b90a0; font-size: 0.85rem;">13 of 25 complete (52%)</span>
+      <span style="color: #8b90a0; font-size: 0.85rem;">14 of 25 complete (56%)</span>
     </div>
     <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 52%;">52%</div>
+      <div class="progress-bar-fill" style="width: 56%;">56%</div>
     </div>
     <div style="display: flex; gap: 1.5rem; font-size: 0.82rem; color: #8b90a0; margin-top: 0.4rem;">
-      <span><span class="badge badge-complete">Complete</span> 13</span>
+      <span><span class="badge badge-complete">Complete</span> 14</span>
       <span><span class="badge badge-progress">In Progress</span> 0</span>
-      <span><span class="badge badge-not-started">Not Started</span> 12</span>
+      <span><span class="badge badge-not-started">Not Started</span> 11</span>
     </div>
     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid #2a2e3a; font-size: 0.82rem; color: #8b90a0;">
-      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestone 13 moved to Complete &mdash;
-      Added <code>/api/health</code> endpoint and improved <code>DataRefreshService</code> logging (team count + FT% coverage). Data source remains CSV-only. &mdash;
-      <strong style="color: #e1e4ed;">Next:</strong> Milestone 14 (Wire GameHub to GameEngine)
+      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestone 14 moved to Complete &mdash;
+      <code>GameHub.StartGame</code> enqueues a <code>SimulationRequest</code>; <code>SimulationWorkerService</code> runs <code>IGameEngine.SimulateGameAsync</code> and broadcasts each <code>GameEvent</code> to the SignalR group via one method per event type (<code>PossessionResult</code>, <code>ScoreUpdate</code>, <code>GameOver</code>, etc.). Pause/Resume/SetSpeed deferred. &mdash;
+      <strong style="color: #e1e4ed;">Next:</strong> Milestone 15 (TeamSelector with debounced autocomplete)
     </div>
   </div>
 
@@ -815,8 +815,8 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
       <tr>
         <td>14</td>
         <td>Wire GameHub to GameEngine</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Connect SignalR hub to simulation worker service</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>GameHub enqueues SimulationRequest; worker resolves <code>IGameEngine</code> + <code>IHubContext</code>, streams GameEvents to SignalR group with one method per event type (<code>PossessionResult</code>, <code>ScoreUpdate</code>, <code>GameOver</code>, etc.)</td>
       </tr>
 
       <!-- Phase 3 -->
