@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 14
+- **Complete:** 15
 - **In Progress:** 0
-- **Not Started:** 11
+- **Not Started:** 10
 - **Total:** 25
-- **Progress:** 56%
+- **Progress:** 60%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestone 14 moved to **Complete**
-- **Files:** `src/CBBSimulator.Web/Hubs/GameHub.cs`, `src/CBBSimulator.Web/BackgroundServices/SimulationWorkerService.cs`, `src/CBBSimulator.Web/Program.cs`, `src/CBBSimulator.Web/Endpoints/SimulationEndpoints.cs`
-- **Summary:** GameHub now enqueues a `SimulationRequest` to `SimulationQueue`. `SimulationWorkerService.RunSimulationAsync` resolves `IGameEngine` and `IHubContext<GameHub>` per scope, looks up teams, runs `SimulateGameAsync`, and broadcasts each `GameEvent` to the SignalR group via one method per event type (`PossessionResult`, `ScoreUpdate`, `GameOver`, etc.). Removed duplicate `/api/health` stub from `SimulationEndpoints` to fix `AmbiguousMatchException`. Pause/Resume/SetSpeed remain stubs (deferred — needs sim-control registry).
-- **Next step:** Milestone 15 (Implement TeamSelector with search - debounced autocomplete against /api/teams/search)
+- **Milestone impact:** Milestone 15 moved to **Complete**
+- **Files:** `src/CBBSimulator.Client/src/components/TeamSelector.vue`, `src/CBBSimulator.Web/Endpoints/TeamsEndpoints.cs`
+- **Summary:** Polished the TeamSelector autocomplete: full keyboard navigation (arrow keys, Enter, Escape), click-outside dismissal, race-condition guard (token-based stale-response rejection), loading and "no results" states, ARIA roles (combobox/listbox). Trimmed `/api/teams/search` response from full `CollegeModel` (30+ fields) to the same lean DTO used by `/api/teams` (Rank, Name, Conference, W/L, conf W/L) — ~80% smaller payload, no leaked simulation-internal stats.
+- **Next step:** Milestone 16 (Implement live Scoreboard - Real-time score updates via SignalR)
 
 ### Milestones
 
@@ -418,7 +418,7 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 13 | Implement DataRefreshService | Complete | Hourly CSV refresh with FT% loaded inline; added /api/health endpoint exposing team count, FTP coverage, last refresh, and cache age |
 | 14 | Wire GameHub to GameEngine | Complete | GameHub enqueues SimulationRequest; worker resolves IGameEngine + IHubContext, streams GameEvents to SignalR group with one method per event type (PossessionResult, ScoreUpdate, GameOver, etc.) |
 | **Phase 3 - Vue.js Frontend - Game Mode** ||||
-| 15 | Implement TeamSelector with search | Not Started | Debounced autocomplete against /api/teams/search |
+| 15 | Implement TeamSelector with search | Complete | Debounced autocomplete with keyboard nav, click-outside dismiss, race-condition guard, loading/empty states, ARIA roles; search endpoint trimmed to lean DTO |
 | 16 | Implement live Scoreboard | Not Started | Real-time score updates via SignalR |
 | 17 | Implement PossessionLog | Not Started | Scrolling play-by-play feed |
 | **Phase 4 - Tournament & Season Modes** ||||

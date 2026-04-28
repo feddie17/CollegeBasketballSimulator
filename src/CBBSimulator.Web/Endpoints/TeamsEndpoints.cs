@@ -27,7 +27,11 @@ public static class TeamsEndpoints
         group.MapGet("/search", async (string q, ITeamDataService teamData) =>
         {
             var teams = await teamData.SearchTeamsAsync(q);
-            return Results.Ok(teams);
+            return Results.Ok(teams.Select(t => new
+            {
+                t.Rank, t.Name, t.Conference,
+                t.Wins, t.Losses, t.ConfWins, t.ConfLosses
+            }));
         });
     }
 }
