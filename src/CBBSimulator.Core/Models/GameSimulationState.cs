@@ -10,7 +10,7 @@ public class GameSimulationState
     public int AwayFouls { get; private set; }
     public int HomeFouls { get; private set; }
 
-    public int SecondsRemaining { get; private set; } = 2400;
+    public int SecondsRemaining { get; private set; } = 1200;
     public string PeriodLabel { get; private set; } = "1st Half";
     public int OvertimeCount { get; private set; }
     public bool HomeHasPossession { get; private set; }

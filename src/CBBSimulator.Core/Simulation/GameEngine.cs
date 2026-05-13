@@ -28,7 +28,13 @@ public class GameEngine : IGameEngine
         };
 
         await foreach (var evt in SimulateUntilClockAsync(
-            state, away, home, 1200, useLateGameLogic: false, delayMs, ct))
+            state, away, home, 120, useLateGameLogic: false, delayMs, ct))
+        {
+            yield return evt;
+        }
+
+        await foreach (var evt in SimulateUntilClockAsync(
+            state, away, home, 0, useLateGameLogic: true, delayMs, ct))
         {
             yield return evt;
         }

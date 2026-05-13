@@ -104,13 +104,11 @@ public class PossessionEngine
         int adjuster = (int)Math.Round((offense.ADJOE + defense.ADJDE) / 2) - 100;
 
         if (is3Pointer)
-        {
-            return EvaluateThreePointShot(offense, defense, adjuster, defensesFouls, isHomeTeamOnOffense);
-        }
+            EvaluateThreePointShot(result, offense, defense, adjuster, isHomeTeamOnOffense);
         else
-        {
-            return EvaluateTwoPointShot(offense, defense, adjuster, defensesFouls, isHomeTeamOnOffense);
-        }
+            EvaluateTwoPointShot(result, offense, defense, adjuster, isHomeTeamOnOffense);
+
+        return result;
     }
 
     private bool DetermineShotType(int scoreDiff)
@@ -136,15 +134,13 @@ public class PossessionEngine
         return madeCount;
     }
 
-    private PossessionResult EvaluateThreePointShot(
+    private void EvaluateThreePointShot(
+        PossessionResult result,
         CollegeModel offense,
         CollegeModel defense,
         int adjuster,
-        int defensesFouls,
         bool isHomeTeamOnOffense)
     {
-        var result = new PossessionResult();
-
         int percentChance = (int)Math.Round((offense.PT3_O + defense.PT3_D) / 2);
         percentChance += adjuster + _config.Adjuster3PT;
 
@@ -155,39 +151,33 @@ public class PossessionEngine
 
         if (randForShot <= percentChance)
         {
-            // Made 3-pointer
             result.PointsScored = 3;
             result.OffenseKeepsPossession = false;
-            return result;
+            return;
         }
 
-        // Missed 3-pointer
         int chanceOf3ptFoul = (int)Math.Round((offense.FTR_O + defense.FTR_D) / 8);
         chanceOf3ptFoul += _config.AdjusterFoul;
         int randFor3ptFoul = _random.Next(1, 101);
 
         if (chanceOf3ptFoul >= randFor3ptFoul)
         {
-            // Fouled on 3-pointer (3 free throws)
             result.PointsScored = EvaluateFreeThrows(offense, 3);
             result.OffenseKeepsPossession = false;
             result.DefensiveFoul = true;
-            return result;
+            return;
         }
 
-        // No foul, check for rebounds
-        return EvaluateRebounds(offense, defense, adjuster);
+        EvaluateRebounds(result, offense, defense, adjuster);
     }
 
-    private PossessionResult EvaluateTwoPointShot(
+    private void EvaluateTwoPointShot(
+        PossessionResult result,
         CollegeModel offense,
         CollegeModel defense,
         int adjuster,
-        int defensesFouls,
         bool isHomeTeamOnOffense)
     {
-        var result = new PossessionResult();
-
         int percentChance = (int)Math.Round((offense.PT2_O + defense.PT2_D) / 2);
         percentChance += adjuster + _config.Adjuster2PT;
 
@@ -198,33 +188,28 @@ public class PossessionEngine
 
         if (randForShot <= percentChance)
         {
-            // Made 2-pointer
             result.PointsScored = 2;
             result.OffenseKeepsPossession = false;
-            return result;
+            return;
         }
 
-        // Missed 2-pointer
         int chanceOf2ptFoul = (int)Math.Round((offense.FTR_O + defense.FTR_D) / 4);
         chanceOf2ptFoul += _config.AdjusterFoul;
         int randFor2ptFoul = _random.Next(1, 101);
 
         if (chanceOf2ptFoul >= randFor2ptFoul)
         {
-            // Fouled on 2-pointer (2 free throws)
             result.PointsScored = EvaluateFreeThrows(offense, 2);
             result.OffenseKeepsPossession = false;
             result.DefensiveFoul = true;
-            return result;
+            return;
         }
 
-        // No foul, check for rebounds
-        return EvaluateRebounds(offense, defense, adjuster);
+        EvaluateRebounds(result, offense, defense, adjuster);
     }
 
-    private PossessionResult EvaluateRebounds(CollegeModel offense, CollegeModel defense, int adjuster)
+    private void EvaluateRebounds(PossessionResult result, CollegeModel offense, CollegeModel defense, int adjuster)
     {
-        var result = new PossessionResult();
         var adjusterDef = (int)Math.Round((defense.ADJOE + offense.ADJDE) / 2) - 100;
 
         int defReboundChance = (int)Math.Round(defense.DRB) + adjusterDef;
@@ -232,27 +217,22 @@ public class PossessionEngine
 
         if (randForDefRebound <= defReboundChance)
         {
-            // Defensive rebound
             result.PointsScored = 0;
             result.OffenseKeepsPossession = false;
-            return result;
+            return;
         }
 
-        // Defensive rebound failed, check for offensive rebound
         int offReboundChance = (int)Math.Round(offense.ORB) + adjuster;
         int randForOffRebound = _random.Next(1, 101);
 
         if (randForOffRebound <= offReboundChance)
         {
-            // Offensive rebound
             result.PointsScored = 0;
             result.OffenseKeepsPossession = true;
-            return result;
+            return;
         }
 
-        // Defensive rebound
         result.PointsScored = 0;
         result.OffenseKeepsPossession = false;
-        return result;
     }
 }
