@@ -1,34 +1,56 @@
-using CBBSimulator.Core.Models;
-using CBBSimulator.Data.Services;
+using CBBSimulator.Web.BackgroundServices;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CBBSimulator.Web.Hubs;
 
 public class TournamentHub : Hub
 {
-    private readonly ITeamDataService _teamData;
+    private readonly SimulationQueue _queue;
 
-    public TournamentHub(ITeamDataService teamData)
+    public TournamentHub(SimulationQueue queue)
     {
-        _teamData = teamData;
+        _queue = queue;
     }
 
-    public async Task StartTournament(SimSpeed speed)
+    public async Task StartTournament(int speedMs)
     {
         var tournamentId = Guid.NewGuid().ToString();
         await Groups.AddToGroupAsync(Context.ConnectionId, tournamentId);
-
-        // TODO: Queue tournament simulation to worker service
         await Clients.Caller.SendAsync("TournamentCreated", tournamentId);
+
+        var request = new SimulationRequest(
+            tournamentId,
+            "tournament",
+            new Dictionary<string, string>
+            {
+                ["mode"] = "auto",
+                ["speed"] = speedMs.ToString()
+            });
+
+        await _queue.EnqueueAsync(request, Context.ConnectionAborted);
+    }
+
+    public async Task StartCustomTournament(string bracketJson, int speedMs)
+    {
+        var tournamentId = Guid.NewGuid().ToString();
+        await Groups.AddToGroupAsync(Context.ConnectionId, tournamentId);
+        await Clients.Caller.SendAsync("TournamentCreated", tournamentId);
+
+        var request = new SimulationRequest(
+            tournamentId,
+            "tournament",
+            new Dictionary<string, string>
+            {
+                ["mode"] = "custom",
+                ["bracket"] = bracketJson,
+                ["speed"] = speedMs.ToString()
+            });
+
+        await _queue.EnqueueAsync(request, Context.ConnectionAborted);
     }
 
     public async Task JoinTournament(string tournamentId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, tournamentId);
-    }
-
-    public async Task SetSpeed(string tournamentId, SimSpeed speed)
-    {
-        // TODO: Signal the simulation worker to change speed
     }
 }

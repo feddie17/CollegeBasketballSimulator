@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 15
+- **Complete:** 17
 - **In Progress:** 0
-- **Not Started:** 10
+- **Not Started:** 8
 - **Total:** 25
-- **Progress:** 60%
+- **Progress:** 68%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestone 15 moved to **Complete**
-- **Files:** `src/CBBSimulator.Client/src/components/TeamSelector.vue`, `src/CBBSimulator.Web/Endpoints/TeamsEndpoints.cs`
-- **Summary:** Polished the TeamSelector autocomplete: full keyboard navigation (arrow keys, Enter, Escape), click-outside dismissal, race-condition guard (token-based stale-response rejection), loading and "no results" states, ARIA roles (combobox/listbox). Trimmed `/api/teams/search` response from full `CollegeModel` (30+ fields) to the same lean DTO used by `/api/teams` (Rank, Name, Conference, W/L, conf W/L) — ~80% smaller payload, no leaked simulation-internal stats.
-- **Next step:** Milestone 16 (Implement live Scoreboard - Real-time score updates via SignalR)
+- **Milestone impact:** Milestones 16 and 17 moved to **Complete**
+- **Files:** `src/CBBSimulator.Client/src/components/Scoreboard.vue`, `src/CBBSimulator.Client/src/components/PossessionLog.vue`, `src/CBBSimulator.Client/src/stores/gameStore.js`, `src/CBBSimulator.Client/src/views/GameView.vue`
+- **Summary:** Verified Scoreboard and PossessionLog components built during M14-15 wiring. Scoreboard renders live scores, clock countdown, period labels, possession indicator, scoring flash animation, foul counts, and FINAL/OT badge — all driven reactively by gameStore via SignalR events (ScoreUpdate, ClockAdvanced, PeriodStarted, PeriodEnded, Halftime, OvertimeStarted, GameOver). PossessionLog displays scrolling play-by-play feed with timestamps, team names, actions, and points scored, auto-scrolling to latest entry. GameView integrates both components with team selection, speed control, and New Game reset. Backend APIs, SignalR hub negotiate, and Vite proxy all verified end-to-end.
+- **Next step:** Milestone 18 (Port TournamentEngine logic - Extract from MarchMadnessController)
 
 ### Milestones
 
@@ -419,8 +419,8 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 14 | Wire GameHub to GameEngine | Complete | GameHub enqueues SimulationRequest; worker resolves IGameEngine + IHubContext, streams GameEvents to SignalR group with one method per event type (PossessionResult, ScoreUpdate, GameOver, etc.) |
 | **Phase 3 - Vue.js Frontend - Game Mode** ||||
 | 15 | Implement TeamSelector with search | Complete | Debounced autocomplete with keyboard nav, click-outside dismiss, race-condition guard, loading/empty states, ARIA roles; search endpoint trimmed to lean DTO |
-| 16 | Implement live Scoreboard | Not Started | Real-time score updates via SignalR |
-| 17 | Implement PossessionLog | Not Started | Scrolling play-by-play feed |
+| 16 | Implement live Scoreboard | Complete | 3-column grid (away/clock/home) with scoring flash animation, possession indicator, foul counts, clock countdown, period labels, FINAL/OT badge; reactive via gameStore SignalR events |
+| 17 | Implement PossessionLog | Complete | Scrolling play-by-play feed with clock timestamps, team names, action descriptions, points scored; auto-scrolls to latest entry |
 | **Phase 4 - Tournament & Season Modes** ||||
 | 18 | Port TournamentEngine logic | Not Started | Extract from MarchMadnessController |
 | 19 | Build BracketViewer component | Not Started | SVG/CSS bracket visualization |

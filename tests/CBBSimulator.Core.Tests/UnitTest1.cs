@@ -219,6 +219,110 @@ public class PossessionEngineTests
     }
 }
 
+public class TournamentEngineTests
+{
+    [Fact]
+    public void BuildBracket_With68Teams_Creates4RegionsAnd4PlayIns()
+    {
+        var teams = Enumerable.Range(1, 68)
+            .Select(i => GameEngineTestsAccessor.CreateTestTeam($"Team{i}", i))
+            .ToList();
+
+        var bracket = TournamentEngine.BuildBracket(teams);
+
+        Assert.Equal(4, bracket.Regions.Count);
+        Assert.Equal(4, bracket.PlayInGames.Count);
+        Assert.All(bracket.Regions, r => Assert.Equal(15, r.Seeds.Count));
+        Assert.Equal("Team1", bracket.Regions[0].Seeds[0].TeamName);
+    }
+
+    [Fact]
+    public void BuildBracket_With64Teams_NoPlayIns()
+    {
+        var teams = Enumerable.Range(1, 64)
+            .Select(i => GameEngineTestsAccessor.CreateTestTeam($"Team{i}", i))
+            .ToList();
+
+        var bracket = TournamentEngine.BuildBracket(teams);
+
+        Assert.Empty(bracket.PlayInGames);
+        Assert.All(bracket.Regions, r => Assert.Equal(16, r.Seeds.Count));
+    }
+
+    [Fact]
+    public async Task SimulateTournamentAsync_ProducesChampion()
+    {
+        var config = new SimulationConfig();
+        var engine = new TournamentEngine(config, new Random(42));
+        var teams = Enumerable.Range(1, 68)
+            .Select(i => GameEngineTestsAccessor.CreateTestTeam($"Team{i}", i))
+            .ToList();
+
+        TournamentCompletedEvent? completed = null;
+        var gameCount = 0;
+
+        await foreach (var evt in engine.SimulateTournamentAsync(teams, SimSpeed.Instant))
+        {
+            if (evt is TournamentGameCompletedEvent) gameCount++;
+            if (evt is TournamentCompletedEvent tc) completed = tc;
+        }
+
+        Assert.NotNull(completed);
+        Assert.False(string.IsNullOrWhiteSpace(completed!.Champion));
+        Assert.Equal(67, gameCount);
+        Assert.Equal(67, completed.AllResults.Count);
+    }
+
+    [Fact]
+    public async Task SimulateTournamentAsync_EmitsAllRounds()
+    {
+        var config = new SimulationConfig();
+        var engine = new TournamentEngine(config, new Random(42));
+        var teams = Enumerable.Range(1, 68)
+            .Select(i => GameEngineTestsAccessor.CreateTestTeam($"Team{i}", i))
+            .ToList();
+
+        var rounds = new List<string>();
+        await foreach (var evt in engine.SimulateTournamentAsync(teams, SimSpeed.Instant))
+        {
+            if (evt is TournamentRoundCompletedEvent rc)
+                rounds.Add(rc.Round);
+        }
+
+        Assert.Contains("First Four", rounds);
+        Assert.Contains("Round of 64", rounds);
+        Assert.Contains("Round of 32", rounds);
+        Assert.Contains("Sweet 16", rounds);
+        Assert.Contains("Elite 8", rounds);
+        Assert.Contains("Final Four", rounds);
+    }
+
+    [Fact]
+    public async Task SimulateTournamentAsync_IsDeterministic()
+    {
+        var config = new SimulationConfig();
+        var teams = Enumerable.Range(1, 68)
+            .Select(i => GameEngineTestsAccessor.CreateTestTeam($"Team{i}", i))
+            .ToList();
+
+        var engineA = new TournamentEngine(config, new Random(99));
+        var engineB = new TournamentEngine(config, new Random(99));
+
+        string? champA = null, champB = null;
+
+        await foreach (var evt in engineA.SimulateTournamentAsync(teams, SimSpeed.Instant))
+        {
+            if (evt is TournamentCompletedEvent tc) champA = tc.Champion;
+        }
+        await foreach (var evt in engineB.SimulateTournamentAsync(teams, SimSpeed.Instant))
+        {
+            if (evt is TournamentCompletedEvent tc) champB = tc.Champion;
+        }
+
+        Assert.Equal(champA, champB);
+    }
+}
+
 internal static class GameEngineTestsAccessor
 {
     internal static CollegeModel CreateTestTeam(string name, int rank = 1) => new()

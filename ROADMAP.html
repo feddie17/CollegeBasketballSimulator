@@ -707,20 +707,20 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
   <div class="surface" style="margin-bottom: 1.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
       <strong style="color: #e1e4ed;">Overall Progress</strong>
-      <span style="color: #8b90a0; font-size: 0.85rem;">15 of 25 complete (60%)</span>
+      <span style="color: #8b90a0; font-size: 0.85rem;">17 of 25 complete (68%)</span>
     </div>
     <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 60%;">60%</div>
+      <div class="progress-bar-fill" style="width: 68%;">68%</div>
     </div>
     <div style="display: flex; gap: 1.5rem; font-size: 0.82rem; color: #8b90a0; margin-top: 0.4rem;">
-      <span><span class="badge badge-complete">Complete</span> 15</span>
+      <span><span class="badge badge-complete">Complete</span> 17</span>
       <span><span class="badge badge-progress">In Progress</span> 0</span>
-      <span><span class="badge badge-not-started">Not Started</span> 10</span>
+      <span><span class="badge badge-not-started">Not Started</span> 8</span>
     </div>
     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid #2a2e3a; font-size: 0.82rem; color: #8b90a0;">
-      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestone 15 moved to Complete &mdash;
-      Polished <code>TeamSelector.vue</code>: keyboard nav, click-outside dismiss, race-condition guard, loading/empty states, ARIA. Trimmed <code>/api/teams/search</code> payload by ~80%. &mdash;
-      <strong style="color: #e1e4ed;">Next:</strong> Milestone 16 (live Scoreboard via SignalR)
+      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestones 16 &amp; 17 moved to Complete &mdash;
+      Verified <code>Scoreboard.vue</code> (live scores, clock, possession indicator, scoring flash, FINAL/OT badge) and <code>PossessionLog.vue</code> (scrolling play-by-play with auto-scroll) &mdash; both driven by <code>gameStore</code> via SignalR events. End-to-end verified: backend APIs, SignalR hub, Vite proxy. &mdash;
+      <strong style="color: #e1e4ed;">Next:</strong> Milestone 18 (Port TournamentEngine logic)
     </div>
   </div>
 
@@ -830,14 +830,14 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
       <tr>
         <td>16</td>
         <td>Implement live Scoreboard</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Real-time score updates via SignalR</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>3-column grid (away/clock/home) with scoring flash animation, possession indicator, foul counts, clock countdown, period labels, FINAL/OT badge; reactive via gameStore SignalR events</td>
       </tr>
       <tr>
         <td>17</td>
         <td>Implement PossessionLog</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Scrolling play-by-play feed</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Scrolling play-by-play feed with clock timestamps, team names, action descriptions, points scored; auto-scrolls to latest entry</td>
       </tr>
 
       <!-- Phase 4 -->

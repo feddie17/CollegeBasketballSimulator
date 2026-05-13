@@ -3,7 +3,23 @@
     "allow": [
       "Bash(dotnet build *)",
       "Bash(dotnet test *)",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(dotnet run *)",
+      "Bash(lsof -ti:5000)",
+      "Bash(xargs kill -9)",
+      "Bash(curl -s http://localhost:5000/health)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__Claude_in_Chrome__list_connected_browsers",
+      "mcp__Claude_in_Chrome__switch_browser",
+      "Bash(curl -s \"http://localhost:5000/api/teams/search?q=duke\")",
+      "Bash(python3 -m json.tool)",
+      "Bash(curl -s -X POST \"http://localhost:5000/api/simulate/quick\" -H \"Content-Type: application/json\" -d '{\"awayTeam\":\"Duke\",\"homeTeam\":\"Kentucky\"}')",
+      "Bash(curl -s \"http://localhost:5000/hubs/game/negotiate?negotiateVersion=1\" -H \"Content-Type: application/json\")",
+      "Bash(curl -s \"http://localhost:5000/hubs/game/negotiate?negotiateVersion=1\")",
+      "Bash(curl -sv \"http://localhost:5000/hubs/game/negotiate?negotiateVersion=1\" -X POST)",
+      "Bash(curl -s http://localhost:5174/)",
+      "Bash(curl -s \"http://localhost:5174/api/teams/search?q=kansas\")",
+      "Bash(curl -s -X POST http://localhost:5000/hubs/tournament/negotiate?negotiateVersion=1)"
     ]
   }
 }
