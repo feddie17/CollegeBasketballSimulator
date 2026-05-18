@@ -28,6 +28,7 @@ async function startSeason() {
 </script>
 
 <style scoped>
+.season-view { max-width: 1200px; margin: 0 auto; }
 .setup { text-align: center; margin-top: 2rem; }
 .setup p { color: #8b8fa8; margin-bottom: 1.5rem; }
 

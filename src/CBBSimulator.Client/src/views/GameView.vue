@@ -66,6 +66,7 @@ onUnmounted(() => { gameStore.disconnect() })
 </script>
 
 <style scoped>
+.game-view { max-width: 1200px; margin: 0 auto; }
 .setup {
   display: flex;
   align-items: center;
