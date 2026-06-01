@@ -157,8 +157,8 @@ public class CsvDataLoader : ICsvDataLoader
             return false;
         }
 
-        var awayTeam = columns[9].Trim().Replace("\"", "");
-        var homeTeam = columns[15].Trim().Replace("\"", "");
+        var awayTeam = columns[8].Trim().Replace("\"", "");
+        var homeTeam = columns[14].Trim().Replace("\"", "");
         if (string.IsNullOrWhiteSpace(awayTeam) || string.IsNullOrWhiteSpace(homeTeam))
         {
             return false;

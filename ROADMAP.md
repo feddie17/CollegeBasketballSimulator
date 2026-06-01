@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 17
-- **In Progress:** 0
-- **Not Started:** 8
+- **Complete:** 19
+- **In Progress:** 1
+- **Not Started:** 5
 - **Total:** 25
-- **Progress:** 68%
+- **Progress:** 76%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestones 16 and 17 moved to **Complete**
-- **Files:** `src/CBBSimulator.Client/src/components/Scoreboard.vue`, `src/CBBSimulator.Client/src/components/PossessionLog.vue`, `src/CBBSimulator.Client/src/stores/gameStore.js`, `src/CBBSimulator.Client/src/views/GameView.vue`
-- **Summary:** Verified Scoreboard and PossessionLog components built during M14-15 wiring. Scoreboard renders live scores, clock countdown, period labels, possession indicator, scoring flash animation, foul counts, and FINAL/OT badge — all driven reactively by gameStore via SignalR events (ScoreUpdate, ClockAdvanced, PeriodStarted, PeriodEnded, Halftime, OvertimeStarted, GameOver). PossessionLog displays scrolling play-by-play feed with timestamps, team names, actions, and points scored, auto-scrolling to latest entry. GameView integrates both components with team selection, speed control, and New Game reset. Backend APIs, SignalR hub negotiate, and Vite proxy all verified end-to-end.
-- **Next step:** Milestone 18 (Port TournamentEngine logic - Extract from MarchMadnessController)
+- **Milestone impact:** Milestones 18 and 19 moved to **Complete**, Milestone 20 moved to **In Progress**
+- **Files:** `src/CBBSimulator.Core/Simulation/TournamentEngine.cs`, `src/CBBSimulator.Web/Hubs/TournamentHub.cs`, `src/CBBSimulator.Web/BackgroundServices/SimulationWorkerService.cs`, `src/CBBSimulator.Client/src/components/BracketViewer.vue`, `src/CBBSimulator.Client/src/stores/tournamentStore.js`, `src/CBBSimulator.Client/src/views/TournamentView.vue`
+- **Summary:** TournamentEngine fully ported with auto-seeding (top 68), play-in games, round-by-round simulation, and IAsyncEnumerable event streaming. TournamentHub wired to SimulationWorkerService. BracketViewer renders 4-region 64-team bracket with seed display, score reveal animation, winner highlighting, current-game pulse, auto-scroll, OT badges, and champion banner. TournamentView and tournamentStore connect via SignalR. M20 (SeasonEngine) now in progress — porting SimulateFullSchedule from Simulator2026 with daily-batched game events, weekly Top 25 rankings, and Top 100 final standings.
+- **Next step:** Milestone 20 (Port SeasonEngine logic - Extract from Simulator2026)
 
 ### Milestones
 
@@ -422,9 +422,9 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 16 | Implement live Scoreboard | Complete | 3-column grid (away/clock/home) with scoring flash animation, possession indicator, foul counts, clock countdown, period labels, FINAL/OT badge; reactive via gameStore SignalR events |
 | 17 | Implement PossessionLog | Complete | Scrolling play-by-play feed with clock timestamps, team names, action descriptions, points scored; auto-scrolls to latest entry |
 | **Phase 4 - Tournament & Season Modes** ||||
-| 18 | Port TournamentEngine logic | Not Started | Extract from MarchMadnessController |
-| 19 | Build BracketViewer component | Not Started | SVG/CSS bracket visualization |
-| 20 | Port SeasonEngine logic | Not Started | Extract from Simulator2026 |
+| 18 | Port TournamentEngine logic | Complete | Auto-seeding top 68, play-in games, round-by-round IAsyncEnumerable streaming, TournamentHub + worker wiring |
+| 19 | Build BracketViewer component | Complete | 4-region 64-team CSS bracket, score reveal animation, winner highlighting, current-game pulse, auto-scroll, champion banner |
+| 20 | Port SeasonEngine logic | In Progress | Extract from Simulator2026; daily-batched game events, weekly Top 25, Top 100 final rankings |
 | 21 | Build StandingsTable component | Not Started | Sortable standings with conference filter |
 | **Phase 5 - Polish, Deploy & Harden** ||||
 | 22 | Spectator mode | Not Started | Shareable URLs for watching same simulation |

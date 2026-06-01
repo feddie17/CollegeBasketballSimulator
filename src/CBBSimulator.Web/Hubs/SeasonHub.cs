@@ -1,34 +1,36 @@
-using CBBSimulator.Core.Models;
-using CBBSimulator.Data.Services;
+using CBBSimulator.Web.BackgroundServices;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CBBSimulator.Web.Hubs;
 
 public class SeasonHub : Hub
 {
-    private readonly ITeamDataService _teamData;
+    private readonly SimulationQueue _queue;
 
-    public SeasonHub(ITeamDataService teamData)
+    public SeasonHub(SimulationQueue queue)
     {
-        _teamData = teamData;
+        _queue = queue;
     }
 
-    public async Task StartSeason(SimSpeed speed)
+    public async Task StartSeason(int speedMs)
     {
         var seasonId = Guid.NewGuid().ToString();
         await Groups.AddToGroupAsync(Context.ConnectionId, seasonId);
-
-        // TODO: Queue season simulation to worker service
         await Clients.Caller.SendAsync("SeasonCreated", seasonId);
+
+        var request = new SimulationRequest(
+            seasonId,
+            "season",
+            new Dictionary<string, string>
+            {
+                ["speed"] = speedMs.ToString()
+            });
+
+        await _queue.EnqueueAsync(request, Context.ConnectionAborted);
     }
 
     public async Task JoinSeason(string seasonId)
     {
         await Groups.AddToGroupAsync(Context.ConnectionId, seasonId);
-    }
-
-    public async Task SetSpeed(string seasonId, SimSpeed speed)
-    {
-        // TODO: Signal the simulation worker to change speed
     }
 }

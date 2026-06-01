@@ -29,4 +29,17 @@ public class CollegeModel
     public decimal WAB { get; set; }
     public decimal FTP { get; set; }
     public decimal CustomRankAdjuster { get; set; }
+
+    public CollegeModel Clone() => new CollegeModel
+    {
+        Rank = Rank, Name = Name, Conference = Conference,
+        GamesPlayed = GamesPlayed, Wins = Wins, Losses = Losses,
+        ConfWins = ConfWins, ConfLosses = ConfLosses,
+        ADJOE = ADJOE, ADJDE = ADJDE, BARTHAG = BARTHAG,
+        EFG_O = EFG_O, EFG_D = EFG_D, TOR_O = TOR_O, TOR_D = TOR_D,
+        ORB = ORB, DRB = DRB, FTR_O = FTR_O, FTR_D = FTR_D,
+        PT2_O = PT2_O, PT2_D = PT2_D, PT3_O = PT3_O, PT3_D = PT3_D,
+        ADJ_T = ADJ_T, WAB = WAB, FTP = FTP,
+        CustomRankAdjuster = CustomRankAdjuster
+    };
 }

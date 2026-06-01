@@ -707,20 +707,20 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
   <div class="surface" style="margin-bottom: 1.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
       <strong style="color: #e1e4ed;">Overall Progress</strong>
-      <span style="color: #8b90a0; font-size: 0.85rem;">17 of 25 complete (68%)</span>
+      <span style="color: #8b90a0; font-size: 0.85rem;">19 of 25 complete (76%)</span>
     </div>
     <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 68%;">68%</div>
+      <div class="progress-bar-fill" style="width: 76%;">76%</div>
     </div>
     <div style="display: flex; gap: 1.5rem; font-size: 0.82rem; color: #8b90a0; margin-top: 0.4rem;">
-      <span><span class="badge badge-complete">Complete</span> 17</span>
-      <span><span class="badge badge-progress">In Progress</span> 0</span>
-      <span><span class="badge badge-not-started">Not Started</span> 8</span>
+      <span><span class="badge badge-complete">Complete</span> 19</span>
+      <span><span class="badge badge-progress">In Progress</span> 1</span>
+      <span><span class="badge badge-not-started">Not Started</span> 5</span>
     </div>
     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid #2a2e3a; font-size: 0.82rem; color: #8b90a0;">
-      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestones 16 &amp; 17 moved to Complete &mdash;
-      Verified <code>Scoreboard.vue</code> (live scores, clock, possession indicator, scoring flash, FINAL/OT badge) and <code>PossessionLog.vue</code> (scrolling play-by-play with auto-scroll) &mdash; both driven by <code>gameStore</code> via SignalR events. End-to-end verified: backend APIs, SignalR hub, Vite proxy. &mdash;
-      <strong style="color: #e1e4ed;">Next:</strong> Milestone 18 (Port TournamentEngine logic)
+      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestones 18 &amp; 19 moved to Complete, M20 In Progress &mdash;
+      TournamentEngine ported with auto-seeding (top 68), play-in games, round-by-round <code>IAsyncEnumerable</code> streaming. BracketViewer renders 4-region bracket with score reveal, winner highlighting, current-game pulse, champion banner. M20 (SeasonEngine) in progress &mdash; porting from <code>Simulator2026</code> with daily-batched events, weekly Top 25, Top 100 final standings. &mdash;
+      <strong style="color: #e1e4ed;">Next:</strong> Milestone 20 (Port SeasonEngine logic)
     </div>
   </div>
 
@@ -845,20 +845,20 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
       <tr>
         <td>18</td>
         <td>Port TournamentEngine logic</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Extract from MarchMadnessController</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Auto-seeding top 68, play-in games, round-by-round <code>IAsyncEnumerable</code> streaming, TournamentHub + worker wiring</td>
       </tr>
       <tr>
         <td>19</td>
         <td>Build BracketViewer component</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>SVG/CSS bracket visualization</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>4-region 64-team CSS bracket, score reveal animation, winner highlighting, current-game pulse, auto-scroll, champion banner</td>
       </tr>
       <tr>
         <td>20</td>
         <td>Port SeasonEngine logic</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Extract from Simulator2026</td>
+        <td><span class="badge badge-progress">In Progress</span></td>
+        <td>Extract from Simulator2026; daily-batched game events, weekly Top 25, Top 100 final rankings</td>
       </tr>
       <tr>
         <td>21</td>

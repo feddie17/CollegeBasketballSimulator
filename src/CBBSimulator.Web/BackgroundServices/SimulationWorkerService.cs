@@ -98,6 +98,9 @@ public class SimulationWorkerService : BackgroundService
             case "tournament":
                 await RunTournamentAsync(services, request, ct);
                 break;
+            case "season":
+                await RunSeasonAsync(services, request, ct);
+                break;
             default:
                 _logger.LogWarning(
                     "Unknown simulation type: {Type} (id {Id})",
@@ -213,6 +216,48 @@ public class SimulationWorkerService : BackgroundService
             }
         }
     }
+
+    private static async Task RunSeasonAsync(
+        IServiceProvider services,
+        SimulationRequest request,
+        CancellationToken ct)
+    {
+        var teamData = services.GetRequiredService<ITeamDataService>();
+        var config = services.GetRequiredService<SimulationConfig>();
+        var hub = services.GetRequiredService<IHubContext<SeasonHub>>();
+        var group = hub.Clients.Group(request.SimulationId);
+
+        var speed = Enum.TryParse<SimSpeed>(
+            request.Parameters.GetValueOrDefault("speed"), out var s)
+                ? s : SimSpeed.Medium;
+
+        var teams = (await teamData.GetAllTeamsAsync()).ToList();
+        var schedule = (await teamData.GetScheduleAsync()).ToList();
+
+        if (teams.Count == 0 || schedule.Count == 0)
+        {
+            await group.SendAsync("Error",
+                new { message = "No team or schedule data loaded" }, ct);
+            return;
+        }
+
+        var engine = new SeasonEngine(config);
+
+        await foreach (var evt in engine.SimulateSeasonAsync(teams, schedule, speed, ct))
+        {
+            var (method, payload) = MapSeasonEvent(evt);
+            await group.SendAsync(method, payload, ct);
+        }
+    }
+
+    private static (string Method, object Payload) MapSeasonEvent(SeasonEvent evt) => evt switch
+    {
+        SeasonStartedEvent s        => ("SeasonStarted",       s),
+        SeasonDayCompletedEvent d   => ("SeasonDayCompleted",  d),
+        SeasonWeekCompletedEvent w  => ("SeasonWeekCompleted", w),
+        SeasonCompletedEvent c      => ("SeasonCompleted",     c),
+        _                           => ("SeasonEvent",         evt)
+    };
 
     private static (string Method, object Payload) MapTournamentEvent(TournamentEvent evt) => evt switch
     {
