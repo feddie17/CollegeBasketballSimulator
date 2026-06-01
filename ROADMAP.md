@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 19
+- **Complete:** 20
 - **In Progress:** 1
-- **Not Started:** 5
+- **Not Started:** 4
 - **Total:** 25
-- **Progress:** 76%
+- **Progress:** 80%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestones 18 and 19 moved to **Complete**, Milestone 20 moved to **In Progress**
-- **Files:** `src/CBBSimulator.Core/Simulation/TournamentEngine.cs`, `src/CBBSimulator.Web/Hubs/TournamentHub.cs`, `src/CBBSimulator.Web/BackgroundServices/SimulationWorkerService.cs`, `src/CBBSimulator.Client/src/components/BracketViewer.vue`, `src/CBBSimulator.Client/src/stores/tournamentStore.js`, `src/CBBSimulator.Client/src/views/TournamentView.vue`
-- **Summary:** TournamentEngine fully ported with auto-seeding (top 68), play-in games, round-by-round simulation, and IAsyncEnumerable event streaming. TournamentHub wired to SimulationWorkerService. BracketViewer renders 4-region 64-team bracket with seed display, score reveal animation, winner highlighting, current-game pulse, auto-scroll, OT badges, and champion banner. TournamentView and tournamentStore connect via SignalR. M20 (SeasonEngine) now in progress — porting SimulateFullSchedule from Simulator2026 with daily-batched game events, weekly Top 25 rankings, and Top 100 final standings.
-- **Next step:** Milestone 20 (Port SeasonEngine logic - Extract from Simulator2026)
+- **Milestone impact:** Milestone 20 moved to **Complete**, Milestone 21 moved to **In Progress**
+- **Files:** `src/CBBSimulator.Client/src/stores/seasonStore.js`, `src/CBBSimulator.Client/src/components/StandingsTable.vue`, `src/CBBSimulator.Client/src/views/SeasonView.vue`
+- **Summary:** SeasonEngine (M20) confirmed complete — `SimulateSeasonAsync` streams SeasonStarted / SeasonDayCompleted / SeasonWeekCompleted / SeasonCompleted events with daily-batched results, weekly Top 25 rankings, and Top 100 final standings; SeasonHub + SimulationWorkerService already wired. M21 builds the season-mode frontend vertical slice: new `seasonStore` (Pinia + SignalR to `/hubs/season`) holding rankings, week progress, and a rolling recent-results feed; StandingsTable fleshed out with click-to-sort headers (rank/team/conference/W/L/conf record), a conference filter dropdown, and top-3 emphasis; SeasonView rewired with a speed selector, connection status, week-progress header, reset, and an inline recent-results ticker (winner/score, date, OT badges).
+- **Next step:** Milestone 22 (Spectator mode - shareable URLs)
 
 ### Milestones
 
@@ -424,8 +424,8 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | **Phase 4 - Tournament & Season Modes** ||||
 | 18 | Port TournamentEngine logic | Complete | Auto-seeding top 68, play-in games, round-by-round IAsyncEnumerable streaming, TournamentHub + worker wiring |
 | 19 | Build BracketViewer component | Complete | 4-region 64-team CSS bracket, score reveal animation, winner highlighting, current-game pulse, auto-scroll, champion banner |
-| 20 | Port SeasonEngine logic | In Progress | Extract from Simulator2026; daily-batched game events, weekly Top 25, Top 100 final rankings |
-| 21 | Build StandingsTable component | Not Started | Sortable standings with conference filter |
+| 20 | Port SeasonEngine logic | Complete | Extracted from Simulator2026; daily-batched game events, weekly Top 25, Top 100 final rankings, SeasonHub + worker wiring |
+| 21 | Build StandingsTable component | In Progress | Sortable standings (click headers) + conference filter; seasonStore + SeasonView wiring with week-progress header and recent-results ticker |
 | **Phase 5 - Polish, Deploy & Harden** ||||
 | 22 | Spectator mode | Not Started | Shareable URLs for watching same simulation |
 | 23 | CI/CD pipeline | Not Started | GitHub Actions build/test/deploy |
