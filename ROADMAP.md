@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 20
+- **Complete:** 23
 - **In Progress:** 1
-- **Not Started:** 4
-- **Total:** 25
-- **Progress:** 80%
+- **Not Started:** 6
+- **Total:** 30
+- **Progress:** 77%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestone 20 moved to **Complete**, Milestone 21 moved to **In Progress**
-- **Files:** `src/CBBSimulator.Client/src/stores/seasonStore.js`, `src/CBBSimulator.Client/src/components/StandingsTable.vue`, `src/CBBSimulator.Client/src/views/SeasonView.vue`
-- **Summary:** SeasonEngine (M20) confirmed complete — `SimulateSeasonAsync` streams SeasonStarted / SeasonDayCompleted / SeasonWeekCompleted / SeasonCompleted events with daily-batched results, weekly Top 25 rankings, and Top 100 final standings; SeasonHub + SimulationWorkerService already wired. M21 builds the season-mode frontend vertical slice: new `seasonStore` (Pinia + SignalR to `/hubs/season`) holding rankings, week progress, and a rolling recent-results feed; StandingsTable fleshed out with click-to-sort headers (rank/team/conference/W/L/conf record), a conference filter dropdown, and top-3 emphasis; SeasonView rewired with a speed selector, connection status, week-progress header, reset, and an inline recent-results ticker (winner/score, date, OT badges).
-- **Next step:** Milestone 22 (Spectator mode - shareable URLs)
+- **Milestone impact:** Milestone 21 moved to **Complete**; new Phase 6 added — Milestones 26 & 27 **Complete**, Milestone 28 **In Progress**, Milestones 29 & 30 **Not Started**
+- **Files:** `src/CBBSimulator.Core/Simulation/SeasonEngine.cs`, `src/CBBSimulator.Web/Services/SeasonSessionManager.cs`, `src/CBBSimulator.Web/Hubs/SeasonHub.cs`, `src/CBBSimulator.Data/Scrapers/CsvDataLoader.cs`, `src/CBBSimulator.Data/Caching/TeamDataCache.cs`, `src/CBBSimulator.Data/Data/2026_team_results.csv`, `src/CBBSimulator.Client/src/stores/seasonStore.js`, `src/CBBSimulator.Client/src/views/SeasonView.vue`, `src/CBBSimulator.Client/src/components/StandingsTable.vue`
+- **Summary:** M21 complete — StandingsTable with click-to-sort headers, conference filter, and top-3 emphasis, wired through `seasonStore` + SeasonView with a recent-results ticker. Season mode was then made **interactive (M26)**: the streaming engine was refactored into a stateful `SeasonSimulation` (sim a day or a week at a time, stop, and resume) backed by a singleton `SeasonSessionManager`; the hub gained `SimulateDay` / `SimulateWeek` / `SimulateToEnd` / `StopSeason`, and standings now stream the Top 100 so they're browsable mid-season. **Conference data (M27)** is now sourced directly from a new authoritative dataset, `2026_team_results.csv` (header-aware `team`/`conf` lookup joined onto all 365 teams), replacing the earlier schedule-derivation.
+- **Next step:** Milestone 28 (Conference standings view — grouped-by-conference standings with conference rank, plus a conference filter on day/week results)
 
 ### Milestones
 
@@ -425,12 +425,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | 18 | Port TournamentEngine logic | Complete | Auto-seeding top 68, play-in games, round-by-round IAsyncEnumerable streaming, TournamentHub + worker wiring |
 | 19 | Build BracketViewer component | Complete | 4-region 64-team CSS bracket, score reveal animation, winner highlighting, current-game pulse, auto-scroll, champion banner |
 | 20 | Port SeasonEngine logic | Complete | Extracted from Simulator2026; daily-batched game events, weekly Top 25, Top 100 final rankings, SeasonHub + worker wiring |
-| 21 | Build StandingsTable component | In Progress | Sortable standings (click headers) + conference filter; seasonStore + SeasonView wiring with week-progress header and recent-results ticker |
+| 21 | Build StandingsTable component | Complete | Sortable standings (click headers) + conference filter; seasonStore + SeasonView wiring with week-progress header and recent-results ticker |
 | **Phase 5 - Polish, Deploy & Harden** ||||
 | 22 | Spectator mode | Not Started | Shareable URLs for watching same simulation |
 | 23 | CI/CD pipeline | Not Started | GitHub Actions build/test/deploy |
 | 24 | Production deployment | Not Started | Deploy to Azure App Service or alternative |
 | 25 | E2E tests | Not Started | Playwright tests for critical user flows |
+| **Phase 6 - Data Enrichment & UX** ||||
+| 26 | Interactive season controls | Complete | Stateful SeasonSimulation: sim a day/week, stop, resume; SeasonSessionManager; Top 100 browsable standings |
+| 27 | Conference data integration | Complete | Added 2026_team_results.csv; header-aware team→conf lookup joined onto all 365 teams |
+| 28 | Conference standings view | In Progress | Group full standings by conference with conference rank shown beside overall rank; conference filter on day/week results |
+| 29 | Enriched team cards | Not Started | Surface real record / rank / SOS / conference in TeamSelector (from 2026_team_results.csv) |
+| 30 | Realistic tournament seeding | Not Started | WAB / SOS / Quality-driven seeding & at-large bubble selection |
 
 ---
 

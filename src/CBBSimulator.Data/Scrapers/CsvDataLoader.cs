@@ -7,7 +7,14 @@ public interface ICsvDataLoader
 {
     Task<List<CollegeModel>> LoadTeamDataAsync(string filePath, CancellationToken ct = default);
     Task<List<ScheduleGame>> LoadScheduleAsync(string filePath, CancellationToken ct = default);
+    Task<Dictionary<string, TeamResultInfo>> LoadTeamResultsAsync(string filePath, CancellationToken ct = default);
 }
+
+/// <summary>
+/// Season-results enrichment for a team, sourced from the team-results dataset:
+/// conference, real W-L record, strength of schedule, and wins above bubble.
+/// </summary>
+public record TeamResultInfo(string Conference, string Record, decimal Sos, decimal Wab);
 
 public class CsvDataLoader : ICsvDataLoader
 {
@@ -89,6 +96,81 @@ public class CsvDataLoader : ICsvDataLoader
         }
 
         return schedule.OrderBy(x => x.GameDate).ToList();
+    }
+
+    /// <summary>
+    /// Reads per-team season-results enrichment (conference, record, SOS, WAB)
+    /// directly from the team-results dataset (a header-rowed CSV). Columns are
+    /// located by header name so the parse is resilient to column reordering.
+    /// </summary>
+    public async Task<Dictionary<string, TeamResultInfo>> LoadTeamResultsAsync(string filePath, CancellationToken ct = default)
+    {
+        var result = new Dictionary<string, TeamResultInfo>(StringComparer.Ordinal);
+        if (!File.Exists(filePath))
+        {
+            return result;
+        }
+
+        var lines = await File.ReadAllLinesAsync(filePath, ct);
+        if (lines.Length < 2)
+        {
+            return result;
+        }
+
+        var header = ParseCsvLine(lines[0]);
+        var teamIndex = FindColumnIndex(header, "team");
+        var confIndex = FindColumnIndex(header, "conf");
+        var recordIndex = FindColumnIndex(header, "record");
+        var sosIndex = FindColumnIndex(header, "sos");
+        var wabIndex = FindColumnIndex(header, "WAB");
+        if (teamIndex < 0)
+        {
+            return result;
+        }
+
+        var maxIndex = new[] { teamIndex, confIndex, recordIndex, sosIndex, wabIndex }.Max();
+
+        foreach (var line in lines.Skip(1))
+        {
+            ct.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                continue;
+            }
+
+            var columns = ParseCsvLine(line);
+            if (columns.Count <= maxIndex)
+            {
+                continue;
+            }
+
+            var team = columns[teamIndex].Trim().Replace("\"", "");
+            if (string.IsNullOrWhiteSpace(team))
+            {
+                continue;
+            }
+
+            var conf = confIndex >= 0 ? columns[confIndex].Trim().Replace("\"", "") : "";
+            var record = recordIndex >= 0 ? columns[recordIndex].Trim().Replace("\"", "") : "";
+            TryParseDecimal(sosIndex >= 0 ? columns[sosIndex] : "", out var sos);
+            TryParseDecimal(wabIndex >= 0 ? columns[wabIndex] : "", out var wab);
+
+            result[team] = new TeamResultInfo(conf, record, sos, wab);
+        }
+
+        return result;
+    }
+
+    private static int FindColumnIndex(IReadOnlyList<string> header, string name)
+    {
+        for (var i = 0; i < header.Count; i++)
+        {
+            if (header[i].Trim().Replace("\"", "").Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     private static bool TryParseTeam(IReadOnlyList<string> columns, out CollegeModel team)
@@ -176,24 +258,42 @@ public class CsvDataLoader : ICsvDataLoader
     }
 
     private static bool IsConferenceGame(string confColumnRaw)
+        => TryParseConferenceMatchup(confColumnRaw, out var away, out var home)
+           && away.Equals(home, StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Parses a matchup descriptor like "SB at MAC" or "ACC vs. ACC" into the
+    /// away and home conference codes. Splits on the spaced separators (" at ",
+    /// " vs. ") so codes that themselves contain "at" (e.g. "Pat") parse correctly.
+    /// </summary>
+    private static bool TryParseConferenceMatchup(string raw, out string away, out string home)
     {
-        var confColumn = confColumnRaw.Trim();
+        away = string.Empty;
+        home = string.Empty;
+        var value = raw.Trim();
         string[] parts;
 
-        if (confColumn.Contains("vs.", StringComparison.Ordinal))
+        if (value.Contains(" vs. ", StringComparison.Ordinal))
         {
-            parts = confColumn.Split("vs.", StringSplitOptions.TrimEntries);
+            parts = value.Split(" vs. ", StringSplitOptions.TrimEntries);
         }
-        else if (confColumn.Contains("at", StringComparison.Ordinal))
+        else if (value.Contains(" at ", StringComparison.Ordinal))
         {
-            parts = confColumn.Split("at", StringSplitOptions.TrimEntries);
+            parts = value.Split(" at ", StringSplitOptions.TrimEntries);
         }
         else
         {
             return false;
         }
 
-        return parts.Length == 2 && parts[0].Equals(parts[1], StringComparison.OrdinalIgnoreCase);
+        if (parts.Length != 2 || parts[0].Length == 0 || parts[1].Length == 0)
+        {
+            return false;
+        }
+
+        away = parts[0];
+        home = parts[1];
+        return true;
     }
 
     private static bool TryParseDecimal(string value, out decimal result)

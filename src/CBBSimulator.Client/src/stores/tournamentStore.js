@@ -18,54 +18,61 @@ export const useTournamentStore = defineStore('tournament', () => {
 
   let connection = null
 
-  async function startTournament(speed = 'Medium') {
-    reset()
-
-    connection = new HubConnectionBuilder()
+  function buildConnection() {
+    const conn = new HubConnectionBuilder()
       .withUrl('/hubs/tournament')
       .withAutomaticReconnect()
       .configureLogging(LogLevel.Warning)
       .build()
 
-    connection.on('TournamentCreated', (id) => {
-      tournamentId.value = id
-    })
-
-    connection.on('BracketBuilt', (e) => {
-      bracket.value = e.bracket
-    })
-
-    connection.on('GameStarted', (e) => {
+    conn.on('TournamentCreated', (id) => { tournamentId.value = id })
+    conn.on('BracketBuilt', (e) => { bracket.value = e.bracket })
+    conn.on('GameStarted', (e) => {
       currentGame.value = e.gameInfo
       currentRound.value = e.gameInfo.round
     })
-
-    connection.on('GameCompleted', (e) => {
+    conn.on('GameCompleted', (e) => {
       completedGames.value.push({ result: e.result, round: e.round, region: e.region })
       currentGame.value = null
     })
-
-    connection.on('RoundCompleted', (e) => {
+    conn.on('RoundCompleted', (e) => {
       roundResults.value.push({ round: e.round, results: e.results })
     })
-
-    connection.on('TournamentCompleted', (e) => {
+    conn.on('TournamentCompleted', (e) => {
       champion.value = e.champion
       isFinished.value = true
     })
+    conn.on('Error', (e) => { error.value = e.message })
+    conn.onclose(() => { connected.value = false })
+    conn.onreconnected(() => { connected.value = true })
 
-    connection.on('Error', (e) => {
-      error.value = e.message
-    })
+    return conn
+  }
 
-    connection.onclose(() => { connected.value = false })
-    connection.onreconnected(() => { connected.value = true })
-
+  async function startTournament(speed = 'Medium') {
+    reset()
+    connection = buildConnection()
     try {
       await connection.start()
       connected.value = true
       const speedInt = SPEED_MS[speed] ?? SPEED_MS.Medium
       await connection.invoke('StartTournament', speedInt)
+    } catch (err) {
+      error.value = err.message ?? String(err)
+      connected.value = false
+    }
+  }
+
+  // Seed a tournament from an ordered list of team names (e.g. a completed
+  // season's final standings). The backend preserves the order as seed order.
+  async function startTournamentFromTeams(teamNames, speed = 'Medium') {
+    reset()
+    connection = buildConnection()
+    try {
+      await connection.start()
+      connected.value = true
+      const speedInt = SPEED_MS[speed] ?? SPEED_MS.Medium
+      await connection.invoke('StartSeededTournament', JSON.stringify(teamNames), speedInt)
     } catch (err) {
       error.value = err.message ?? String(err)
       connected.value = false
@@ -96,6 +103,6 @@ export const useTournamentStore = defineStore('tournament', () => {
     tournamentId, bracket, currentGame, completedGames,
     currentRound, roundResults, champion, isFinished,
     connected, error,
-    startTournament, disconnect, reset
+    startTournament, startTournamentFromTeams, disconnect, reset
   }
 })

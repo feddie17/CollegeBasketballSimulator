@@ -14,7 +14,8 @@ public static class TeamsEndpoints
             return Results.Ok(teams.Select(t => new
             {
                 t.Rank, t.Name, t.Conference,
-                t.Wins, t.Losses, t.ConfWins, t.ConfLosses
+                t.Wins, t.Losses, t.ConfWins, t.ConfLosses,
+                t.Record, t.Sos
             }));
         });
 
@@ -30,7 +31,8 @@ public static class TeamsEndpoints
             return Results.Ok(teams.Select(t => new
             {
                 t.Rank, t.Name, t.Conference,
-                t.Wins, t.Losses, t.ConfWins, t.ConfLosses
+                t.Wins, t.Losses, t.ConfWins, t.ConfLosses,
+                t.Record, t.Sos
             }));
         });
     }

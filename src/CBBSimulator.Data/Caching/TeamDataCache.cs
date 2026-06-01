@@ -14,6 +14,7 @@ public class TeamDataCache
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(1);
     private const string TeamCsvName = "trank_data.csv";
     private const string ScheduleCsvName = "2026_super_sked.csv";
+    private const string TeamResultsCsvName = "2026_team_results.csv";
 
     public DateTime LastRefreshed { get; private set; }
 
@@ -43,6 +44,29 @@ public class TeamDataCache
     {
         var teamsPath = ResolveDataFilePath(TeamCsvName);
         var teams = await _csvLoader.LoadTeamDataAsync(teamsPath, ct);
+
+        // The team stats CSV is a predictive projection with no conference,
+        // record, or résumé data; enrich it from the team-results dataset.
+        try
+        {
+            var resultsPath = ResolveDataFilePath(TeamResultsCsvName);
+            var results = await _csvLoader.LoadTeamResultsAsync(resultsPath, ct);
+            foreach (var team in teams)
+            {
+                if (results.TryGetValue(team.Name, out var info))
+                {
+                    team.Conference = info.Conference;
+                    team.Record = info.Record;
+                    team.Sos = info.Sos;
+                    team.WAB = info.Wab; // résumé WAB (full season), used for tournament seeding
+                }
+            }
+        }
+        catch (FileNotFoundException)
+        {
+            // Results file is optional for enrichment; leave fields blank if absent.
+        }
+
         _cache.Set(TeamsCacheKey, teams, CacheDuration);
         LastRefreshed = DateTime.UtcNow;
         return teams;

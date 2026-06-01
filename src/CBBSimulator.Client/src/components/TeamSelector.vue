@@ -36,7 +36,11 @@
       >
         <span class="rank">#{{ team.rank }}</span>
         <span class="name">{{ team.name }}</span>
-        <span class="conf">{{ team.conference }}</span>
+        <span class="meta">
+          <span class="conf">{{ team.conference }}</span>
+          <span v-if="team.record" class="record">{{ team.record }}</span>
+          <span v-if="team.sos" class="sos">SOS {{ formatSos(team.sos) }}</span>
+        </span>
       </li>
     </ul>
 
@@ -49,6 +53,9 @@
 
     <div v-if="selected" class="selected">
       Selected: #{{ selected.rank }} {{ selected.name }}
+      <span v-if="selected.conference" class="selected-meta">
+        {{ selected.conference }}<template v-if="selected.record"> · {{ selected.record }}</template><template v-if="selected.sos"> · SOS {{ formatSos(selected.sos) }}</template>
+      </span>
     </div>
   </div>
 </template>
@@ -68,6 +75,10 @@ const open = ref(false)
 const loading = ref(false)
 const activeIndex = ref(-1)
 const rootEl = ref(null)
+
+function formatSos(sos) {
+  return Number(sos).toFixed(3)
+}
 
 const uid = Math.random().toString(36).slice(2, 8)
 const inputId = `team-input-${uid}`
@@ -191,7 +202,12 @@ input:focus { outline: 2px solid #4f8ff7; border-color: #4f8ff7; }
 
 .rank { color: #8b8fa8; font-variant-numeric: tabular-nums; }
 .name { color: #e1e4ed; }
+.meta { display: flex; align-items: center; gap: 0.5rem; justify-self: end; }
 .conf { color: #8b8fa8; font-size: 0.78rem; }
+.record { color: #34d399; font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.sos { color: #8b8fa8; font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+
+.selected-meta { color: #8b8fa8; }
 
 .status {
   position: absolute;

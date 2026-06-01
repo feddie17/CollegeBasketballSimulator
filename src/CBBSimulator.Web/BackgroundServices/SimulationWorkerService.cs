@@ -98,9 +98,6 @@ public class SimulationWorkerService : BackgroundService
             case "tournament":
                 await RunTournamentAsync(services, request, ct);
                 break;
-            case "season":
-                await RunSeasonAsync(services, request, ct);
-                break;
             default:
                 _logger.LogWarning(
                     "Unknown simulation type: {Type} (id {Id})",
@@ -197,10 +194,47 @@ public class SimulationWorkerService : BackgroundService
                 await group.SendAsync(method, payload, ct);
             }
         }
+        else if (mode == "seeded" && request.Parameters.TryGetValue("teams", out var teamsJson))
+        {
+            // Seed from a caller-provided order (e.g. a completed season's final
+            // standings); preserve that order — the top 68 become the field.
+            var names = JsonSerializer.Deserialize<List<string>>(teamsJson,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<string>();
+
+            var rankedTeams = new List<CollegeModel>();
+            foreach (var name in names)
+            {
+                var team = await teamData.GetTeamByNameAsync(name);
+                if (team is not null)
+                {
+                    rankedTeams.Add(team);
+                }
+            }
+            rankedTeams = rankedTeams.Take(68).ToList();
+
+            if (rankedTeams.Count < 64)
+            {
+                await group.SendAsync("Error",
+                    new { message = $"Not enough teams from season ({rankedTeams.Count}), need at least 64" }, ct);
+                return;
+            }
+
+            await foreach (var evt in engine.SimulateTournamentAsync(rankedTeams, speed, ct))
+            {
+                var (method, payload) = MapTournamentEvent(evt);
+                await group.SendAsync(method, payload, ct);
+            }
+        }
         else
         {
             var teams = await teamData.GetAllTeamsAsync();
-            var rankedTeams = teams.OrderBy(t => t.Rank).Take(68).ToList();
+            // Committee-style selection/seeding: order the field by résumé (WAB,
+            // wins above bubble) with predictive rating (BARTHAG) as tiebreaker.
+            var rankedTeams = teams
+                .OrderByDescending(t => t.WAB)
+                .ThenByDescending(t => t.BARTHAG)
+                .Take(68)
+                .ToList();
 
             if (rankedTeams.Count < 64)
             {
@@ -216,48 +250,6 @@ public class SimulationWorkerService : BackgroundService
             }
         }
     }
-
-    private static async Task RunSeasonAsync(
-        IServiceProvider services,
-        SimulationRequest request,
-        CancellationToken ct)
-    {
-        var teamData = services.GetRequiredService<ITeamDataService>();
-        var config = services.GetRequiredService<SimulationConfig>();
-        var hub = services.GetRequiredService<IHubContext<SeasonHub>>();
-        var group = hub.Clients.Group(request.SimulationId);
-
-        var speed = Enum.TryParse<SimSpeed>(
-            request.Parameters.GetValueOrDefault("speed"), out var s)
-                ? s : SimSpeed.Medium;
-
-        var teams = (await teamData.GetAllTeamsAsync()).ToList();
-        var schedule = (await teamData.GetScheduleAsync()).ToList();
-
-        if (teams.Count == 0 || schedule.Count == 0)
-        {
-            await group.SendAsync("Error",
-                new { message = "No team or schedule data loaded" }, ct);
-            return;
-        }
-
-        var engine = new SeasonEngine(config);
-
-        await foreach (var evt in engine.SimulateSeasonAsync(teams, schedule, speed, ct))
-        {
-            var (method, payload) = MapSeasonEvent(evt);
-            await group.SendAsync(method, payload, ct);
-        }
-    }
-
-    private static (string Method, object Payload) MapSeasonEvent(SeasonEvent evt) => evt switch
-    {
-        SeasonStartedEvent s        => ("SeasonStarted",       s),
-        SeasonDayCompletedEvent d   => ("SeasonDayCompleted",  d),
-        SeasonWeekCompletedEvent w  => ("SeasonWeekCompleted", w),
-        SeasonCompletedEvent c      => ("SeasonCompleted",     c),
-        _                           => ("SeasonEvent",         evt)
-    };
 
     private static (string Method, object Payload) MapTournamentEvent(TournamentEvent evt) => evt switch
     {

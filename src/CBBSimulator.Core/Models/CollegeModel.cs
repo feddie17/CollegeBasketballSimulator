@@ -30,6 +30,10 @@ public class CollegeModel
     public decimal FTP { get; set; }
     public decimal CustomRankAdjuster { get; set; }
 
+    // Enrichment from the team-results dataset (real season résumé, not sim state).
+    public string Record { get; set; } = "";
+    public decimal Sos { get; set; }
+
     public CollegeModel Clone() => new CollegeModel
     {
         Rank = Rank, Name = Name, Conference = Conference,
@@ -40,6 +44,7 @@ public class CollegeModel
         ORB = ORB, DRB = DRB, FTR_O = FTR_O, FTR_D = FTR_D,
         PT2_O = PT2_O, PT2_D = PT2_D, PT3_O = PT3_O, PT3_D = PT3_D,
         ADJ_T = ADJ_T, WAB = WAB, FTP = FTP,
-        CustomRankAdjuster = CustomRankAdjuster
+        CustomRankAdjuster = CustomRankAdjuster,
+        Record = Record, Sos = Sos
     };
 }

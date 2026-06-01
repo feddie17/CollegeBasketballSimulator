@@ -6,6 +6,7 @@ using CBBSimulator.Data.Services;
 using CBBSimulator.Web.BackgroundServices;
 using CBBSimulator.Web.Endpoints;
 using CBBSimulator.Web.Hubs;
+using CBBSimulator.Web.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,9 @@ builder.Services.AddTransient<IGameEngine, GameEngine>();
 builder.Services.AddHostedService<DataRefreshService>();
 builder.Services.AddSingleton<SimulationQueue>();
 builder.Services.AddHostedService<SimulationWorkerService>();
+
+// Interactive season sessions (day/week stepping, stoppable runs)
+builder.Services.AddSingleton<SeasonSessionManager>();
 
 // SignalR
 builder.Services.AddSignalR();

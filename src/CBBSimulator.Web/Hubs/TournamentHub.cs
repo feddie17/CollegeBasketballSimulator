@@ -30,6 +30,30 @@ public class TournamentHub : Hub
         await _queue.EnqueueAsync(request, Context.ConnectionAborted);
     }
 
+    /// <summary>
+    /// Seeds a tournament directly from an ordered list of team names — e.g. the
+    /// final standings of a completed season — preserving that order as the seed
+    /// order (top 68 become the field). Reuses the standard bracket builder.
+    /// </summary>
+    public async Task StartSeededTournament(string teamsJson, int speedMs)
+    {
+        var tournamentId = Guid.NewGuid().ToString();
+        await Groups.AddToGroupAsync(Context.ConnectionId, tournamentId);
+        await Clients.Caller.SendAsync("TournamentCreated", tournamentId);
+
+        var request = new SimulationRequest(
+            tournamentId,
+            "tournament",
+            new Dictionary<string, string>
+            {
+                ["mode"] = "seeded",
+                ["teams"] = teamsJson,
+                ["speed"] = speedMs.ToString()
+            });
+
+        await _queue.EnqueueAsync(request, Context.ConnectionAborted);
+    }
+
     public async Task StartCustomTournament(string bracketJson, int speedMs)
     {
         var tournamentId = Guid.NewGuid().ToString();
