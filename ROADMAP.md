@@ -384,18 +384,18 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 
 ### Overall Progress
 
-- **Complete:** 23
-- **In Progress:** 1
-- **Not Started:** 6
-- **Total:** 30
-- **Progress:** 77%
+- **Complete:** 27
+- **In Progress:** 0
+- **Not Started:** 4
+- **Total:** 31
+- **Progress:** 87%
 
 ### Latest Push Update
 
-- **Milestone impact:** Milestone 21 moved to **Complete**; new Phase 6 added — Milestones 26 & 27 **Complete**, Milestone 28 **In Progress**, Milestones 29 & 30 **Not Started**
-- **Files:** `src/CBBSimulator.Core/Simulation/SeasonEngine.cs`, `src/CBBSimulator.Web/Services/SeasonSessionManager.cs`, `src/CBBSimulator.Web/Hubs/SeasonHub.cs`, `src/CBBSimulator.Data/Scrapers/CsvDataLoader.cs`, `src/CBBSimulator.Data/Caching/TeamDataCache.cs`, `src/CBBSimulator.Data/Data/2026_team_results.csv`, `src/CBBSimulator.Client/src/stores/seasonStore.js`, `src/CBBSimulator.Client/src/views/SeasonView.vue`, `src/CBBSimulator.Client/src/components/StandingsTable.vue`
-- **Summary:** M21 complete — StandingsTable with click-to-sort headers, conference filter, and top-3 emphasis, wired through `seasonStore` + SeasonView with a recent-results ticker. Season mode was then made **interactive (M26)**: the streaming engine was refactored into a stateful `SeasonSimulation` (sim a day or a week at a time, stop, and resume) backed by a singleton `SeasonSessionManager`; the hub gained `SimulateDay` / `SimulateWeek` / `SimulateToEnd` / `StopSeason`, and standings now stream the Top 100 so they're browsable mid-season. **Conference data (M27)** is now sourced directly from a new authoritative dataset, `2026_team_results.csv` (header-aware `team`/`conf` lookup joined onto all 365 teams), replacing the earlier schedule-derivation.
-- **Next step:** Milestone 28 (Conference standings view — grouped-by-conference standings with conference rank, plus a conference filter on day/week results)
+- **Milestone impact:** Milestones 28, 29 & 30 moved to **Complete**; new Milestone 31 (Season → Tournament handoff) added and **Complete**
+- **Files:** `src/CBBSimulator.Client/src/components/StandingsTable.vue`, `src/CBBSimulator.Client/src/views/SeasonView.vue`, `src/CBBSimulator.Client/src/components/TeamSelector.vue`, `src/CBBSimulator.Client/src/stores/tournamentStore.js`, `src/CBBSimulator.Core/Models/CollegeModel.cs`, `src/CBBSimulator.Data/Scrapers/CsvDataLoader.cs`, `src/CBBSimulator.Data/Caching/TeamDataCache.cs`, `src/CBBSimulator.Web/Endpoints/TeamsEndpoints.cs`, `src/CBBSimulator.Web/Hubs/TournamentHub.cs`, `src/CBBSimulator.Web/BackgroundServices/SimulationWorkerService.cs`
+- **Summary:** **M28** — StandingsTable gained an Overall / By-Conference toggle (each conference in its own container, ordered by strength) with each team's conference rank shown beside its overall rank, plus a conference filter on the day/week results ticker. **M29** — the team-results dataset now also yields real record + SOS (and résumé WAB), surfaced as enriched cards in the game-mode TeamSelector (`#1 Michigan · B10 · 37-3 · SOS 0.810`). **M30** — tournament selection/seeding is now committee-style, ordering the 68-team field by résumé WAB with BARTHAG as tiebreaker. **M31** — a completed season can be turned into a tournament: a "Create Tournament" action seeds the bracket directly from the season's final standings order (new `StartSeededTournament` hub method + worker `seeded` mode reusing the standard bracket builder), verified end-to-end (season top 4 → the four #1 seeds).
+- **Next step:** Milestone 22 (Spectator mode — shareable URLs)
 
 ### Milestones
 
@@ -434,9 +434,10 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
 | **Phase 6 - Data Enrichment & UX** ||||
 | 26 | Interactive season controls | Complete | Stateful SeasonSimulation: sim a day/week, stop, resume; SeasonSessionManager; Top 100 browsable standings |
 | 27 | Conference data integration | Complete | Added 2026_team_results.csv; header-aware team→conf lookup joined onto all 365 teams |
-| 28 | Conference standings view | In Progress | Group full standings by conference with conference rank shown beside overall rank; conference filter on day/week results |
-| 29 | Enriched team cards | Not Started | Surface real record / rank / SOS / conference in TeamSelector (from 2026_team_results.csv) |
-| 30 | Realistic tournament seeding | Not Started | WAB / SOS / Quality-driven seeding & at-large bubble selection |
+| 28 | Conference standings view | Complete | Overall/By-Conference toggle (each conference its own container) with conference rank beside overall rank; conference filter on day/week results |
+| 29 | Enriched team cards | Complete | Real record + SOS surfaced in the game-mode TeamSelector (from 2026_team_results.csv) |
+| 30 | Realistic tournament seeding | Complete | Committee-style field ordered by résumé WAB, BARTHAG tiebreaker |
+| 31 | Season → Tournament handoff | Complete | "Create Tournament" seeds a bracket directly from a completed season's final standings (StartSeededTournament + worker seeded mode) |
 
 ---
 

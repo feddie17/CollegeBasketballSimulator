@@ -707,20 +707,20 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
   <div class="surface" style="margin-bottom: 1.25rem;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
       <strong style="color: #e1e4ed;">Overall Progress</strong>
-      <span style="color: #8b90a0; font-size: 0.85rem;">23 of 30 complete (77%)</span>
+      <span style="color: #8b90a0; font-size: 0.85rem;">27 of 31 complete (87%)</span>
     </div>
     <div class="progress-bar-bg">
-      <div class="progress-bar-fill" style="width: 77%;">77%</div>
+      <div class="progress-bar-fill" style="width: 87%;">87%</div>
     </div>
     <div style="display: flex; gap: 1.5rem; font-size: 0.82rem; color: #8b90a0; margin-top: 0.4rem;">
-      <span><span class="badge badge-complete">Complete</span> 23</span>
-      <span><span class="badge badge-progress">In Progress</span> 1</span>
-      <span><span class="badge badge-not-started">Not Started</span> 6</span>
+      <span><span class="badge badge-complete">Complete</span> 27</span>
+      <span><span class="badge badge-progress">In Progress</span> 0</span>
+      <span><span class="badge badge-not-started">Not Started</span> 4</span>
     </div>
     <div style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px solid #2a2e3a; font-size: 0.82rem; color: #8b90a0;">
-      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestone 21 Complete; new Phase 6 &mdash; M26 &amp; M27 Complete, M28 In Progress &mdash;
-      StandingsTable shipped (click-to-sort, conference filter) wired through <code>seasonStore</code> + SeasonView. Season mode made interactive (M26): streaming engine refactored into a stateful <code>SeasonSimulation</code> (sim a day/week, stop, resume) with a <code>SeasonSessionManager</code>; standings now stream Top 100 for mid-season browsing. Conference data (M27) now comes directly from a new authoritative dataset <code>2026_team_results.csv</code> (header-aware team&rarr;conf lookup on all 365 teams). &mdash;
-      <strong style="color: #e1e4ed;">Next:</strong> Milestone 28 (Conference standings view &mdash; grouped standings + conference rank, results conference filter)
+      <strong style="color: #e1e4ed;">Latest Push:</strong> Milestones 28, 29 &amp; 30 Complete; new M31 (Season &rarr; Tournament handoff) Complete &mdash;
+      StandingsTable gained an Overall/By-Conference toggle with conference rank beside overall rank, plus a conference filter on the results ticker (M28). The team-results dataset now also yields real record + SOS, shown as enriched cards in the game-mode TeamSelector (M29). Tournament seeding is committee-style, ordering the field by résumé WAB with BARTHAG tiebreaker (M30). A completed season can now be turned into a tournament &mdash; "Create Tournament" seeds the bracket from the final standings order via a new <code>StartSeededTournament</code> hub method (M31, verified: season top 4 &rarr; the four #1 seeds). &mdash;
+      <strong style="color: #e1e4ed;">Next:</strong> Milestone 22 (Spectator mode &mdash; shareable URLs)
     </div>
   </div>
 
@@ -911,20 +911,26 @@ ENTRYPOINT ["dotnet", "CBBSimulator.Web.dll"]
       <tr>
         <td>28</td>
         <td>Conference standings view</td>
-        <td><span class="badge badge-progress">In Progress</span></td>
-        <td>Group full standings by conference with conference rank shown beside overall rank; conference filter on day/week results</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Overall/By-Conference toggle (each conference its own container) with conference rank beside overall rank; conference filter on day/week results</td>
       </tr>
       <tr>
         <td>29</td>
         <td>Enriched team cards</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>Surface real record / rank / SOS / conference in TeamSelector (from 2026_team_results.csv)</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Real record + SOS surfaced in the game-mode TeamSelector (from 2026_team_results.csv)</td>
       </tr>
       <tr>
         <td>30</td>
         <td>Realistic tournament seeding</td>
-        <td><span class="badge badge-not-started">Not Started</span></td>
-        <td>WAB / SOS / Quality-driven seeding &amp; at-large bubble selection</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>Committee-style field ordered by résumé WAB, BARTHAG tiebreaker</td>
+      </tr>
+      <tr>
+        <td>31</td>
+        <td>Season &rarr; Tournament handoff</td>
+        <td><span class="badge badge-complete">Complete</span></td>
+        <td>"Create Tournament" seeds a bracket directly from a completed season's final standings (StartSeededTournament + worker seeded mode)</td>
       </tr>
     </tbody>
   </table>
