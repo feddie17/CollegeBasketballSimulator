@@ -27,7 +27,3 @@ This project is not currently deployed. To try it out, clone the repo and run it
 ## Tech Stack
 
 C# / .NET
-
----
-
-*Built by [Brady Zalasky](https://bradyzalasky.com)*
